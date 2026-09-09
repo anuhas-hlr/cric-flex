@@ -1,0 +1,189 @@
+import React, { useState } from 'react';
+import type { ExtraType, MatchRules } from '../../types/cricket';
+import { X, Check } from 'lucide-react';
+
+interface ExtrasModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  rules: MatchRules;
+  onSubmit: (extraType: ExtraType, extraRuns: number, runsOffBat: number) => void;
+}
+
+export const ExtrasModal: React.FC<ExtrasModalProps> = ({
+  isOpen,
+  onClose,
+  rules,
+  onSubmit,
+}) => {
+  const [selectedType, setSelectedType] = useState<ExtraType>('WIDE');
+  const [additionalRuns, setAdditionalRuns] = useState<number>(0);
+  const [runsOffBat, setRunsOffBat] = useState<number>(0);
+
+  if (!isOpen) return null;
+
+  const handleConfirm = () => {
+    let totalExtraRuns = 0;
+    let offBat = 0;
+
+    if (selectedType === 'WIDE') {
+      totalExtraRuns = rules.wideRuns + additionalRuns;
+      offBat = 0;
+    } else if (selectedType === 'NO_BALL') {
+      totalExtraRuns = rules.noBallRuns;
+      offBat = runsOffBat;
+    } else if (selectedType === 'BYE' || selectedType === 'LEG_BYE') {
+      totalExtraRuns = additionalRuns > 0 ? additionalRuns : 1;
+      offBat = 0;
+    } else if (selectedType === 'PENALTY') {
+      totalExtraRuns = 5;
+      offBat = 0;
+    }
+
+    onSubmit(selectedType, totalExtraRuns, offBat);
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+      <div className="relative w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-6 text-slate-100">
+        <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-800">
+          <h3 className="font-display font-bold text-lg text-white">
+            Record Extras
+          </h3>
+          <button
+            onClick={onClose}
+            className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Extra Type Selector */}
+        <div className="grid grid-cols-2 gap-2.5 mb-5">
+          {(['WIDE', 'NO_BALL', 'BYE', 'LEG_BYE', 'PENALTY'] as ExtraType[]).map((type) => (
+            <button
+              key={type}
+              type="button"
+              onClick={() => {
+                setSelectedType(type);
+                setAdditionalRuns(0);
+                setRunsOffBat(0);
+              }}
+              className={`p-3 rounded-xl border text-sm font-semibold transition-all ${
+                selectedType === type
+                  ? 'bg-emerald-500 text-slate-950 border-emerald-400 shadow-md shadow-emerald-500/20'
+                  : 'bg-slate-800/80 text-slate-300 border-slate-700 hover:bg-slate-700'
+              }`}
+            >
+              {type === 'NO_BALL' ? 'NO BALL' : type.replace('_', ' ')}
+            </button>
+          ))}
+        </div>
+
+        {/* Dynamic Sub-options */}
+        {selectedType === 'WIDE' && (
+          <div className="mb-5 bg-slate-950/60 p-4 rounded-xl border border-slate-800">
+            <p className="text-xs text-slate-400 mb-2 font-medium">
+              Additional Byes / Overthrows on Wide:
+            </p>
+            <div className="flex items-center space-x-2">
+              {[0, 1, 2, 3, 4].map((runs) => (
+                <button
+                  key={runs}
+                  type="button"
+                  onClick={() => setAdditionalRuns(runs)}
+                  className={`flex-1 py-2 rounded-lg font-mono text-sm font-bold border transition-colors ${
+                    additionalRuns === runs
+                      ? 'bg-amber-500 text-slate-950 border-amber-400'
+                      : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
+                  }`}
+                >
+                  +{runs}
+                </button>
+              ))}
+            </div>
+            <p className="text-[11px] text-slate-500 mt-2">
+              Total to batting team: <span className="text-emerald-400 font-bold">{rules.wideRuns + additionalRuns} runs</span> (1 Wide {rules.reBallWide ? '+ re-ball' : ''})
+            </p>
+          </div>
+        )}
+
+        {selectedType === 'NO_BALL' && (
+          <div className="mb-5 bg-slate-950/60 p-4 rounded-xl border border-slate-800">
+            <p className="text-xs text-slate-400 mb-2 font-medium">
+              Runs Scored off No-Ball:
+            </p>
+            <div className="grid grid-cols-6 gap-1.5">
+              {[0, 1, 2, 3, 4, 6].map((runs) => (
+                <button
+                  key={runs}
+                  type="button"
+                  onClick={() => setRunsOffBat(runs)}
+                  className={`py-2 rounded-lg font-mono text-sm font-bold border transition-colors ${
+                    runsOffBat === runs
+                      ? 'bg-orange-500 text-slate-950 border-orange-400'
+                      : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
+                  }`}
+                >
+                  {runs}
+                </button>
+              ))}
+            </div>
+            <p className="text-[11px] text-slate-500 mt-2">
+              Total to batting team: <span className="text-emerald-400 font-bold">{rules.noBallRuns + runsOffBat} runs</span> (1 NB penalty + {runsOffBat} off bat)
+            </p>
+          </div>
+        )}
+
+        {(selectedType === 'BYE' || selectedType === 'LEG_BYE') && (
+          <div className="mb-5 bg-slate-950/60 p-4 rounded-xl border border-slate-800">
+            <p className="text-xs text-slate-400 mb-2 font-medium">
+              Number of {selectedType === 'BYE' ? 'Byes' : 'Leg Byes'}:
+            </p>
+            <div className="flex items-center space-x-2">
+              {[1, 2, 3, 4].map((runs) => (
+                <button
+                  key={runs}
+                  type="button"
+                  onClick={() => setAdditionalRuns(runs)}
+                  className={`flex-1 py-2 rounded-lg font-mono text-sm font-bold border transition-colors ${
+                    (additionalRuns === 0 && runs === 1) || additionalRuns === runs
+                      ? 'bg-emerald-500 text-slate-950 border-emerald-400'
+                      : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
+                  }`}
+                >
+                  {runs}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {selectedType === 'PENALTY' && (
+          <div className="mb-5 bg-slate-950/60 p-4 rounded-xl border border-slate-800 text-xs text-slate-300">
+            5 penalty runs will be credited directly to the batting side.
+          </div>
+        )}
+
+        {/* Action Buttons */}
+        <div className="flex items-center justify-end space-x-3">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 rounded-xl text-sm font-medium text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleConfirm}
+            className="flex items-center space-x-1.5 px-5 py-2 rounded-xl text-sm font-bold text-slate-950 bg-emerald-500 hover:bg-emerald-400 shadow-md shadow-emerald-500/20"
+          >
+            <Check className="w-4 h-4" />
+            <span>Apply Extras</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};

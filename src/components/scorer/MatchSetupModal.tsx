@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import type { MatchType, MatchRules, MatchRecord } from '../../types/cricket';
 import { DEFAULT_RULES } from '../../db/cricflexDb';
 import { createInitialInnings } from '../../engine/scoringEngine';
-import { X, Play, Sliders } from 'lucide-react';
+import { X, Play, Sliders, Users, Trash2, ClipboardPaste, RotateCcw, Plus } from 'lucide-react';
 
 interface MatchSetupModalProps {
   isOpen: boolean;
@@ -32,6 +32,12 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
   const [teamAPlayers, setTeamAPlayers] = useState<string[]>([]);
   const [teamBPlayers, setTeamBPlayers] = useState<string[]>([]);
 
+  const [activePlayerTab, setActivePlayerTab] = useState<'teamA' | 'teamB'>('teamA');
+  const [newPlayerName, setNewPlayerName] = useState<string>('');
+  const [bulkPasteOpen, setBulkPasteOpen] = useState<boolean>(false);
+  const [bulkPasteInput, setBulkPasteInput] = useState<string>('');
+  const [validationError, setValidationError] = useState<string | null>(null);
+
   const [tossWinner, setTossWinner] = useState<'teamA' | 'teamB'>('teamA');
   const [tossDecision, setTossDecision] = useState<'BAT' | 'BOWL'>('BAT');
 
@@ -42,20 +48,124 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
     if (tournamentRules) setRules({ ...tournamentRules });
   }, [defaultTeamA, defaultTeamB, tournamentRules, isOpen]);
 
-  // Initialize or re-sync players when count changes
-  React.useEffect(() => {
-    const generateDefaultPlayers = (teamPrefix: string, count: number) => {
-      const names = [
-        ['Rohit S.', 'Virat K.', 'Surya Y.', 'Hardik P.', 'Rinku S.', 'Jasprit B.', 'Axar P.', 'Arshdeep S.', 'Kuldeep Y.', 'Sanju S.', 'Rishabh P.'],
-        ['Babar A.', 'Rizwan M.', 'Shaheen A.', 'Naseem S.', 'Haris R.', 'Fakhar Z.', 'Shadab K.', 'Iftikhar A.', 'Imad W.', 'Amir M.', 'Agha S.']
-      ];
-      const source = teamPrefix.includes('A') ? names[0] : names[1];
-      return Array.from({ length: count }, (_, i) => source[i] || `${teamPrefix} Player ${i + 1}`);
-    };
+  // Default player generator
+  const generateDefaultPlayers = (teamPrefix: string, count: number) => {
+    const names = [
+      ['Rohit S.', 'Virat K.', 'Surya Y.', 'Hardik P.', 'Rinku S.', 'Jasprit B.', 'Axar P.', 'Arshdeep S.', 'Kuldeep Y.', 'Sanju S.', 'Rishabh P.'],
+      ['Babar A.', 'Rizwan M.', 'Shaheen A.', 'Naseem S.', 'Haris R.', 'Fakhar Z.', 'Shadab K.', 'Iftikhar A.', 'Imad W.', 'Amir M.', 'Agha S.']
+    ];
+    const source = teamPrefix.includes('A') ? names[0] : names[1];
+    return Array.from({ length: count }, (_, i) => source[i] || `${teamPrefix} Player ${i + 1}`);
+  };
 
-    setTeamAPlayers(generateDefaultPlayers('A', rules.playersPerTeam));
-    setTeamBPlayers(generateDefaultPlayers('B', rules.playersPerTeam));
+  // Initialize players gracefully without overwriting custom names
+  React.useEffect(() => {
+    setTeamAPlayers((prev) => {
+      if (prev.length === 0) {
+        return generateDefaultPlayers('Team A', rules.playersPerTeam);
+      }
+      if (prev.length < rules.playersPerTeam) {
+        const extra = Array.from(
+          { length: rules.playersPerTeam - prev.length },
+          (_, i) => `Team A Player ${prev.length + i + 1}`
+        );
+        return [...prev, ...extra];
+      }
+      return prev;
+    });
+
+    setTeamBPlayers((prev) => {
+      if (prev.length === 0) {
+        return generateDefaultPlayers('Team B', rules.playersPerTeam);
+      }
+      if (prev.length < rules.playersPerTeam) {
+        const extra = Array.from(
+          { length: rules.playersPerTeam - prev.length },
+          (_, i) => `Team B Player ${prev.length + i + 1}`
+        );
+        return [...prev, ...extra];
+      }
+      return prev;
+    });
   }, [rules.playersPerTeam]);
+
+  // Handlers for player management
+  const handleUpdatePlayer = (team: 'teamA' | 'teamB', index: number, value: string) => {
+    setValidationError(null);
+    if (team === 'teamA') {
+      const updated = [...teamAPlayers];
+      updated[index] = value;
+      setTeamAPlayers(updated);
+    } else {
+      const updated = [...teamBPlayers];
+      updated[index] = value;
+      setTeamBPlayers(updated);
+    }
+  };
+
+  const handleAddPlayer = (team: 'teamA' | 'teamB', customName?: string) => {
+    setValidationError(null);
+    const targetName = (customName !== undefined ? customName : newPlayerName).trim();
+    const finalName = targetName || (team === 'teamA' ? `Team A Player ${teamAPlayers.length + 1}` : `Team B Player ${teamBPlayers.length + 1}`);
+
+    if (team === 'teamA') {
+      setTeamAPlayers([...teamAPlayers, finalName]);
+    } else {
+      setTeamBPlayers([...teamBPlayers, finalName]);
+    }
+    setNewPlayerName('');
+  };
+
+  const handleRemovePlayer = (team: 'teamA' | 'teamB', index: number) => {
+    setValidationError(null);
+    if (team === 'teamA') {
+      if (teamAPlayers.length <= 2) {
+        setValidationError('Each team must have at least 2 players.');
+        return;
+      }
+      setTeamAPlayers(teamAPlayers.filter((_, i) => i !== index));
+    } else {
+      if (teamBPlayers.length <= 2) {
+        setValidationError('Each team must have at least 2 players.');
+        return;
+      }
+      setTeamBPlayers(teamBPlayers.filter((_, i) => i !== index));
+    }
+  };
+
+  const handleBulkApply = (team: 'teamA' | 'teamB') => {
+    setValidationError(null);
+    if (!bulkPasteInput.trim()) {
+      setBulkPasteOpen(false);
+      return;
+    }
+    const parsedNames = bulkPasteInput
+      .split(/[,\n]/)
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0);
+
+    if (parsedNames.length < 2) {
+      setValidationError('Please enter at least 2 player names.');
+      return;
+    }
+
+    if (team === 'teamA') {
+      setTeamAPlayers(parsedNames);
+    } else {
+      setTeamBPlayers(parsedNames);
+    }
+    setBulkPasteInput('');
+    setBulkPasteOpen(false);
+  };
+
+  const handleResetToDefaults = (team: 'teamA' | 'teamB') => {
+    setValidationError(null);
+    if (team === 'teamA') {
+      setTeamAPlayers(generateDefaultPlayers('Team A', rules.playersPerTeam));
+    } else {
+      setTeamBPlayers(generateDefaultPlayers('Team B', rules.playersPerTeam));
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -70,6 +180,32 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
 
   const handleCreate = (e: React.FormEvent) => {
     e.preventDefault();
+    setValidationError(null);
+
+    // Clean and validate players
+    const cleanedTeamA = teamAPlayers.map((p, i) => p.trim() || `Player ${i + 1}`);
+    const cleanedTeamB = teamBPlayers.map((p, i) => p.trim() || `Player ${i + 1}`);
+
+    if (cleanedTeamA.length < 2) {
+      setValidationError(`Team "${teamAName}" must have at least 2 players.`);
+      return;
+    }
+    if (cleanedTeamB.length < 2) {
+      setValidationError(`Team "${teamBName}" must have at least 2 players.`);
+      return;
+    }
+
+    // Ensure unique names within each team to avoid statistics key collision
+    const deduplicate = (arr: string[]): string[] => {
+      const counts: Record<string, number> = {};
+      return arr.map((name) => {
+        counts[name] = (counts[name] || 0) + 1;
+        return counts[name] > 1 ? `${name} (${counts[name]})` : name;
+      });
+    };
+
+    const finalTeamAPlayers = deduplicate(cleanedTeamA);
+    const finalTeamBPlayers = deduplicate(cleanedTeamB);
 
     const battingTeamName =
       (tossWinner === 'teamA' && tossDecision === 'BAT') ||
@@ -79,8 +215,8 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
 
     const bowlingTeamName = battingTeamName === teamAName ? teamBName : teamAName;
 
-    const battingPlayers = battingTeamName === teamAName ? teamAPlayers : teamBPlayers;
-    const bowlingPlayers = bowlingTeamName === teamAName ? teamAPlayers : teamBPlayers;
+    const battingPlayers = battingTeamName === teamAName ? finalTeamAPlayers : finalTeamBPlayers;
+    const bowlingPlayers = bowlingTeamName === teamAName ? finalTeamAPlayers : finalTeamBPlayers;
 
     const initialInnings = createInitialInnings(
       battingTeamName,
@@ -93,9 +229,13 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
       id: `match_${Date.now()}`,
       tournamentId,
       matchType,
-      rules,
-      teamA: { name: teamAName, players: teamAPlayers },
-      teamB: { name: teamBName, players: teamBPlayers },
+      rules: {
+        ...rules,
+        // Sync rules.playersPerTeam with squad size if customized
+        playersPerTeam: Math.max(finalTeamAPlayers.length, finalTeamBPlayers.length),
+      },
+      teamA: { name: teamAName, players: finalTeamAPlayers },
+      teamB: { name: teamBName, players: finalTeamBPlayers },
       tossWinner: tossWinner === 'teamA' ? teamAName : teamBName,
       tossDecision,
       currentInningsIndex: 1,
@@ -326,6 +466,190 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
                 onChange={(e) => setTeamBName(e.target.value)}
                 className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-sm text-white font-medium focus:outline-none focus:border-emerald-500"
               />
+            </div>
+          </div>
+
+          {/* Validation Error Alert */}
+          {validationError && (
+            <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-xs text-red-400 font-medium flex items-center space-x-2">
+              <span>⚠️</span>
+              <span>{validationError}</span>
+            </div>
+          )}
+
+          {/* Player Names & Squads Section */}
+          <div className="bg-slate-950/60 p-4 rounded-2xl border border-slate-800">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center space-x-2">
+                <Users className="w-4 h-4 text-emerald-400" />
+                <span className="text-xs font-semibold text-slate-200">
+                  Player Names & Rosters
+                </span>
+              </div>
+              <span className="text-[11px] text-slate-400">
+                {activePlayerTab === 'teamA' ? teamAPlayers.length : teamBPlayers.length} players listed
+              </span>
+            </div>
+
+            {/* Team Tabs */}
+            <div className="grid grid-cols-2 gap-2 mb-3">
+              <button
+                type="button"
+                onClick={() => setActivePlayerTab('teamA')}
+                className={`p-2.5 rounded-xl border text-xs font-bold transition-all flex items-center justify-center space-x-2 ${
+                  activePlayerTab === 'teamA'
+                    ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500 shadow-md shadow-emerald-950/30'
+                    : 'bg-slate-800/80 text-slate-400 border-slate-700 hover:bg-slate-800 hover:text-slate-200'
+                }`}
+              >
+                <span className="truncate">🏏 {teamAName}</span>
+                <span className="px-1.5 py-0.5 rounded-full bg-slate-800 text-[10px] text-slate-300">
+                  {teamAPlayers.length}
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setActivePlayerTab('teamB')}
+                className={`p-2.5 rounded-xl border text-xs font-bold transition-all flex items-center justify-center space-x-2 ${
+                  activePlayerTab === 'teamB'
+                    ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500 shadow-md shadow-emerald-950/30'
+                    : 'bg-slate-800/80 text-slate-400 border-slate-700 hover:bg-slate-800 hover:text-slate-200'
+                }`}
+              >
+                <span className="truncate">⚾ {teamBName}</span>
+                <span className="px-1.5 py-0.5 rounded-full bg-slate-800 text-[10px] text-slate-300">
+                  {teamBPlayers.length}
+                </span>
+              </button>
+            </div>
+
+            {/* Toolbar: Information & Fast Actions */}
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-3 pb-2.5 border-b border-slate-800/80">
+              <div className="text-[11px] text-slate-400">
+                Opening batters: <span className="text-emerald-400 font-semibold">#1 (Striker)</span> &{' '}
+                <span className="text-teal-400 font-semibold">#2 (Non-Striker)</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <button
+                  type="button"
+                  onClick={() => setBulkPasteOpen(!bulkPasteOpen)}
+                  className="flex items-center space-x-1 px-2.5 py-1 text-[11px] text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg transition-colors"
+                  title="Paste a comma or newline separated list of names"
+                >
+                  <ClipboardPaste className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Paste List</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleResetToDefaults(activePlayerTab)}
+                  className="flex items-center space-x-1 px-2.5 py-1 text-[11px] text-slate-400 hover:text-slate-200 bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 rounded-lg transition-colors"
+                  title="Reset team players to defaults"
+                >
+                  <RotateCcw className="w-3 h-3" />
+                  <span>Defaults</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Bulk Paste Box if open */}
+            {bulkPasteOpen && (
+              <div className="mb-3 p-3 bg-slate-900 border border-emerald-500/40 rounded-xl space-y-2">
+                <div className="flex items-center justify-between text-xs text-slate-300">
+                  <span className="font-semibold">
+                    Paste player names for {activePlayerTab === 'teamA' ? teamAName : teamBName}:
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setBulkPasteOpen(false)}
+                    className="text-slate-400 hover:text-white text-xs"
+                  >
+                    Cancel
+                  </button>
+                </div>
+                <textarea
+                  rows={3}
+                  placeholder="Paste comma-separated or line-separated names, e.g.:&#10;Liam, Noah, Oliver, James, Elijah, William"
+                  value={bulkPasteInput}
+                  onChange={(e) => setBulkPasteInput(e.target.value)}
+                  className="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                />
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => handleBulkApply(activePlayerTab)}
+                    className="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold"
+                  >
+                    Apply Names
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Player Input Rows */}
+            <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+              {(activePlayerTab === 'teamA' ? teamAPlayers : teamBPlayers).map((player, idx) => (
+                <div
+                  key={`${activePlayerTab}_${idx}`}
+                  className="flex items-center space-x-2 bg-slate-900/90 border border-slate-800/80 rounded-xl px-2.5 py-1.5 focus-within:border-emerald-500/60 transition-colors"
+                >
+                  <span className="w-6 text-center text-xs font-mono font-bold text-slate-400">
+                    #{idx + 1}
+                  </span>
+                  <input
+                    type="text"
+                    value={player}
+                    onChange={(e) => handleUpdatePlayer(activePlayerTab, idx, e.target.value)}
+                    placeholder={`Player ${idx + 1} Name`}
+                    className="flex-1 bg-transparent text-xs text-white font-medium focus:outline-none"
+                  />
+                  {idx === 0 && (
+                    <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded border border-emerald-500/30 whitespace-nowrap">
+                      Striker
+                    </span>
+                  )}
+                  {idx === 1 && (
+                    <span className="text-[10px] bg-teal-500/20 text-teal-300 px-1.5 py-0.5 rounded border border-teal-500/30 whitespace-nowrap">
+                      Non-Striker
+                    </span>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => handleRemovePlayer(activePlayerTab, idx)}
+                    disabled={(activePlayerTab === 'teamA' ? teamAPlayers : teamBPlayers).length <= 2}
+                    className="p-1 text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-30 disabled:hover:text-slate-500 disabled:hover:bg-transparent"
+                    title="Remove player"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            {/* Add Player Input Row */}
+            <div className="mt-3 pt-3 border-t border-slate-800 flex items-center space-x-2">
+              <div className="relative flex-1">
+                <input
+                  type="text"
+                  placeholder={`Add new player to ${activePlayerTab === 'teamA' ? teamAName : teamBName}...`}
+                  value={newPlayerName}
+                  onChange={(e) => setNewPlayerName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddPlayer(activePlayerTab);
+                    }
+                  }}
+                  className="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => handleAddPlayer(activePlayerTab)}
+                className="flex items-center space-x-1.5 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-emerald-950/30"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Add Player</span>
+              </button>
             </div>
           </div>
 

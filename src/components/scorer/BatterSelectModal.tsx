@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { InningsState } from '../../types/cricket';
-import { X, Check } from 'lucide-react';
+import { X, Check, Plus } from 'lucide-react';
 
 interface BatterSelectModalProps {
   isOpen: boolean;
@@ -9,6 +9,7 @@ interface BatterSelectModalProps {
   allBattingPlayers: string[];
   targetEnd: 'striker' | 'nonStriker';
   onSelectBatter: (playerName: string) => void;
+  onAddNewBatter?: (playerName: string) => void;
 }
 
 export const BatterSelectModal: React.FC<BatterSelectModalProps> = ({
@@ -18,8 +19,25 @@ export const BatterSelectModal: React.FC<BatterSelectModalProps> = ({
   allBattingPlayers,
   targetEnd,
   onSelectBatter,
+  onAddNewBatter,
 }) => {
+  const [newBatterInput, setNewBatterInput] = useState<string>('');
+
   if (!isOpen) return null;
+
+  const handleAddNew = () => {
+    const trimmed = newBatterInput.trim();
+    if (!trimmed) return;
+    if (onAddNewBatter) {
+      onAddNewBatter(trimmed);
+      setNewBatterInput('');
+      onClose();
+    } else {
+      onSelectBatter(trimmed);
+      setNewBatterInput('');
+      onClose();
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
@@ -30,7 +48,7 @@ export const BatterSelectModal: React.FC<BatterSelectModalProps> = ({
               Select {targetEnd === 'striker' ? 'Striker' : 'Non-Striker'}
             </h3>
             <p className="text-xs text-slate-400">
-              Replace active batter on {targetEnd === 'striker' ? 'striker end' : 'non-striker end'}
+              Select an existing player or add a new player to bat
             </p>
           </div>
           <button
@@ -41,7 +59,7 @@ export const BatterSelectModal: React.FC<BatterSelectModalProps> = ({
           </button>
         </div>
 
-        <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
+        <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
           {allBattingPlayers.map((player) => {
             const stats = innings.batters[player];
             const isStriker = player === innings.strikerName;
@@ -104,6 +122,36 @@ export const BatterSelectModal: React.FC<BatterSelectModalProps> = ({
               </button>
             );
           })}
+        </div>
+
+        {/* Quick Add New Player to Batting Team */}
+        <div className="mt-4 pt-3 border-t border-slate-800">
+          <label className="block text-xs font-semibold text-slate-400 mb-1.5">
+            + Add New Player to Bat
+          </label>
+          <div className="flex space-x-2">
+            <input
+              type="text"
+              placeholder="Enter new player name..."
+              value={newBatterInput}
+              onChange={(e) => setNewBatterInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleAddNew();
+                }
+              }}
+              className="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+            />
+            <button
+              type="button"
+              onClick={handleAddNew}
+              className="flex items-center space-x-1 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold rounded-xl text-xs transition-all"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Add & Bat</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>

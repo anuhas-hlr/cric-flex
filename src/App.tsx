@@ -26,6 +26,7 @@ import { WicketModal } from './components/scorer/WicketModal';
 import { BowlerSelectModal } from './components/scorer/BowlerSelectModal';
 import { BatterSelectModal } from './components/scorer/BatterSelectModal';
 import { MatchSetupModal } from './components/scorer/MatchSetupModal';
+import { SquadManagementModal } from './components/scorer/SquadManagementModal';
 import { FullScorecard } from './components/scorecard/FullScorecard';
 import { MatchSummaryCard } from './components/scorecard/MatchSummaryCard';
 import { MatchesHistory } from './components/matches/MatchesHistory';
@@ -45,6 +46,7 @@ export function App() {
   const [isWicketModalOpen, setIsWicketModalOpen] = useState<boolean>(false);
   const [isBowlerModalOpen, setIsBowlerModalOpen] = useState<boolean>(false);
   const [isBatterModalOpen, setIsBatterModalOpen] = useState<boolean>(false);
+  const [isSquadModalOpen, setIsSquadModalOpen] = useState<boolean>(false);
   const [targetBatterEnd, setTargetBatterEnd] = useState<'striker' | 'nonStriker'>('striker');
 
   // For starting tournament matches
@@ -366,10 +368,22 @@ export function App() {
   }) => {
     if (!activeMatch || !currentInnings || activeMatch.status === 'COMPLETED') return;
 
-    const undoSnapshot = structuredClone(currentInnings);
-    const undoStack = [...(activeMatch.undoStack || []), undoSnapshot];
+    let baseMatch = activeMatch;
+    // If an incoming batter was newly created on the fly
+    if (params.newBatterName && battingTeamObj && !battingTeamObj.players.includes(params.newBatterName)) {
+      const isTeamA = battingTeamObj.name === activeMatch.teamA.name;
+      const updatedPlayers = [...battingTeamObj.players, params.newBatterName];
+      baseMatch = {
+        ...activeMatch,
+        teamA: isTeamA ? { ...activeMatch.teamA, players: updatedPlayers } : activeMatch.teamA,
+        teamB: !isTeamA ? { ...activeMatch.teamB, players: updatedPlayers } : activeMatch.teamB,
+      };
+    }
 
-    const { updatedInnings, overFinished } = processBall(currentInnings, activeMatch.rules, {
+    const undoSnapshot = structuredClone(currentInnings);
+    const undoStack = [...(baseMatch.undoStack || []), undoSnapshot];
+
+    const { updatedInnings, overFinished } = processBall(currentInnings, baseMatch.rules, {
       runsOffBat: params.runsCompleted || 0,
       wicket: {
         type: params.type,
@@ -380,7 +394,7 @@ export function App() {
       newBatterName: params.newBatterName,
     });
 
-    const updatedMatch = updateMatchWithInnings(activeMatch, updatedInnings, {
+    const updatedMatch = updateMatchWithInnings(baseMatch, updatedInnings, {
       undoStack,
       updatedAt: Date.now(),
     });
@@ -452,6 +466,208 @@ export function App() {
     await persistMatch(updatedMatch);
   };
 
+  // Add new batter on the fly and put them on strike
+  const handleAddNewBatter = async (newPlayerName: string) => {
+    if (!activeMatch || !currentInnings || !newPlayerName.trim()) return;
+    const trimmed = newPlayerName.trim();
+
+    const isTeamA = currentInnings.battingTeam === activeMatch.teamA.name;
+    const targetTeam = isTeamA ? activeMatch.teamA : activeMatch.teamB;
+
+    const updatedPlayers = targetTeam.players.includes(trimmed)
+      ? targetTeam.players
+      : [...targetTeam.players, trimmed];
+
+    const updatedInnings: InningsState = {
+      ...currentInnings,
+      strikerName: targetBatterEnd === 'striker' ? trimmed : currentInnings.strikerName,
+      nonStrikerName: targetBatterEnd === 'nonStriker' ? trimmed : currentInnings.nonStrikerName,
+      batters: {
+        ...currentInnings.batters,
+        ...(currentInnings.batters[trimmed]
+          ? {}
+          : {
+              [trimmed]: {
+                name: trimmed,
+                runs: 0,
+                balls: 0,
+                fours: 0,
+                sixes: 0,
+                isOut: false,
+                strikeRate: 0,
+              },
+            }),
+      },
+    };
+
+    const updatedMatch: MatchRecord = updateMatchWithInnings(
+      {
+        ...activeMatch,
+        teamA: isTeamA ? { ...activeMatch.teamA, players: updatedPlayers } : activeMatch.teamA,
+        teamB: !isTeamA ? { ...activeMatch.teamB, players: updatedPlayers } : activeMatch.teamB,
+      },
+      updatedInnings,
+      { updatedAt: Date.now() }
+    );
+
+    await persistMatch(updatedMatch);
+  };
+
+  // Add new bowler on the fly and put them on bowling attack
+  const handleAddNewBowler = async (newBowlerName: string) => {
+    if (!activeMatch || !currentInnings || !newBowlerName.trim()) return;
+    const trimmed = newBowlerName.trim();
+
+    const isTeamA = currentInnings.bowlingTeam === activeMatch.teamA.name;
+    const targetTeam = isTeamA ? activeMatch.teamA : activeMatch.teamB;
+
+    const updatedPlayers = targetTeam.players.includes(trimmed)
+      ? targetTeam.players
+      : [...targetTeam.players, trimmed];
+
+    const updatedInnings: InningsState = {
+      ...currentInnings,
+      currentBowlerName: trimmed,
+      bowlers: {
+        ...currentInnings.bowlers,
+        ...(currentInnings.bowlers[trimmed]
+          ? {}
+          : {
+              [trimmed]: {
+                name: trimmed,
+                overs: 0,
+                balls: 0,
+                maidens: 0,
+                runs: 0,
+                wickets: 0,
+                economy: 0,
+                wides: 0,
+                noBalls: 0,
+              },
+            }),
+      },
+    };
+
+    const updatedMatch: MatchRecord = updateMatchWithInnings(
+      {
+        ...activeMatch,
+        teamA: isTeamA ? { ...activeMatch.teamA, players: updatedPlayers } : activeMatch.teamA,
+        teamB: !isTeamA ? { ...activeMatch.teamB, players: updatedPlayers } : activeMatch.teamB,
+      },
+      updatedInnings,
+      { updatedAt: Date.now() }
+    );
+
+    await persistMatch(updatedMatch);
+  };
+
+  // Add player to a team during live match from Squad Manager
+  const handleAddPlayerToSquad = async (teamKey: 'teamA' | 'teamB', playerName: string) => {
+    if (!activeMatch || !playerName.trim()) return;
+    const trimmed = playerName.trim();
+    const targetTeam = teamKey === 'teamA' ? activeMatch.teamA : activeMatch.teamB;
+    if (targetTeam.players.includes(trimmed)) return;
+
+    const updatedTeam = {
+      ...targetTeam,
+      players: [...targetTeam.players, trimmed],
+    };
+
+    let updatedMatch: MatchRecord = {
+      ...activeMatch,
+      teamA: teamKey === 'teamA' ? updatedTeam : activeMatch.teamA,
+      teamB: teamKey === 'teamB' ? updatedTeam : activeMatch.teamB,
+      rules: {
+        ...activeMatch.rules,
+        playersPerTeam: Math.max(activeMatch.rules.playersPerTeam, targetTeam.players.length + 1),
+      },
+      updatedAt: Date.now(),
+    };
+
+    if (currentInnings) {
+      const inn = { ...currentInnings };
+      if (inn.battingTeam === targetTeam.name && !inn.batters[trimmed]) {
+        inn.batters = {
+          ...inn.batters,
+          [trimmed]: {
+            name: trimmed,
+            runs: 0,
+            balls: 0,
+            fours: 0,
+            sixes: 0,
+            isOut: false,
+            strikeRate: 0,
+          },
+        };
+      }
+      if (inn.bowlingTeam === targetTeam.name && !inn.bowlers[trimmed]) {
+        inn.bowlers = {
+          ...inn.bowlers,
+          [trimmed]: {
+            name: trimmed,
+            overs: 0,
+            balls: 0,
+            maidens: 0,
+            runs: 0,
+            wickets: 0,
+            economy: 0,
+            wides: 0,
+            noBalls: 0,
+          },
+        };
+      }
+      updatedMatch = updateMatchWithInnings(updatedMatch, inn);
+    }
+
+    await persistMatch(updatedMatch);
+  };
+
+  // Rename player during live match from Squad Manager
+  const handleRenamePlayerInMatch = async (teamKey: 'teamA' | 'teamB', oldName: string, newName: string) => {
+    if (!activeMatch || !newName.trim() || oldName === newName.trim()) return;
+    const trimmed = newName.trim();
+    const targetTeam = teamKey === 'teamA' ? activeMatch.teamA : activeMatch.teamB;
+
+    const updatedPlayers = targetTeam.players.map((p) => (p === oldName ? trimmed : p));
+    const updatedTeam = { ...targetTeam, players: updatedPlayers };
+
+    const renameInInnings = (inn?: InningsState): InningsState | undefined => {
+      if (!inn) return undefined;
+      const newBatters = { ...inn.batters };
+      if (newBatters[oldName]) {
+        newBatters[trimmed] = { ...newBatters[oldName], name: trimmed };
+        delete newBatters[oldName];
+      }
+      const newBowlers = { ...inn.bowlers };
+      if (newBowlers[oldName]) {
+        newBowlers[trimmed] = { ...newBowlers[oldName], name: trimmed };
+        delete newBowlers[oldName];
+      }
+
+      return {
+        ...inn,
+        strikerName: inn.strikerName === oldName ? trimmed : inn.strikerName,
+        nonStrikerName: inn.nonStrikerName === oldName ? trimmed : inn.nonStrikerName,
+        currentBowlerName: inn.currentBowlerName === oldName ? trimmed : inn.currentBowlerName,
+        batters: newBatters,
+        bowlers: newBowlers,
+      };
+    };
+
+    const updatedMatch: MatchRecord = {
+      ...activeMatch,
+      teamA: teamKey === 'teamA' ? updatedTeam : activeMatch.teamA,
+      teamB: teamKey === 'teamB' ? updatedTeam : activeMatch.teamB,
+      innings1: renameInInnings(activeMatch.innings1)!,
+      innings2: renameInInnings(activeMatch.innings2),
+      innings3: renameInInnings(activeMatch.innings3),
+      innings4: renameInInnings(activeMatch.innings4),
+      updatedAt: Date.now(),
+    };
+
+    await persistMatch(updatedMatch);
+  };
+
   // Manually end or declare an innings
   const handleEndInningsManual = async () => {
     if (!activeMatch || !currentInnings) return;
@@ -515,6 +731,7 @@ export function App() {
                         setTargetBatterEnd(type);
                         setIsBatterModalOpen(true);
                       }}
+                      onOpenSquads={() => setIsSquadModalOpen(true)}
                     />
 
                     {/* Ball-by-ball timeline of current over */}
@@ -711,6 +928,7 @@ export function App() {
           allBowlingPlayers={bowlingTeamObj.players}
           previousBowlerName={currentInnings.currentBowlerName}
           onSelectBowler={handleSelectBowler}
+          onAddNewBowler={handleAddNewBowler}
         />
       )}
 
@@ -723,6 +941,19 @@ export function App() {
           allBattingPlayers={battingTeamObj.players}
           targetEnd={targetBatterEnd}
           onSelectBatter={handleSelectBatter}
+          onAddNewBatter={handleAddNewBatter}
+        />
+      )}
+
+      {/* 6. Squad & Player Management Modal */}
+      {currentInnings && activeMatch && (
+        <SquadManagementModal
+          isOpen={isSquadModalOpen}
+          onClose={() => setIsSquadModalOpen(false)}
+          match={activeMatch}
+          currentInnings={currentInnings}
+          onAddPlayerToTeam={handleAddPlayerToSquad}
+          onRenamePlayer={handleRenamePlayerInMatch}
         />
       )}
     </div>

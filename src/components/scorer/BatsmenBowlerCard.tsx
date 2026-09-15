@@ -1,6 +1,6 @@
 import React from 'react';
 import type { InningsState, MatchRules } from '../../types/cricket';
-import { ArrowLeftRight, RefreshCw } from 'lucide-react';
+import { ArrowLeftRight, RefreshCw, Users } from 'lucide-react';
 
 interface BatsmenBowlerCardProps {
   innings: InningsState;
@@ -8,6 +8,7 @@ interface BatsmenBowlerCardProps {
   onSwapStrike: () => void;
   onChangeBowler: () => void;
   onChangeBatter: (type: 'striker' | 'nonStriker') => void;
+  onOpenSquads?: () => void;
 }
 
 export const BatsmenBowlerCard: React.FC<BatsmenBowlerCardProps> = ({
@@ -16,6 +17,7 @@ export const BatsmenBowlerCard: React.FC<BatsmenBowlerCardProps> = ({
   onSwapStrike,
   onChangeBowler,
   onChangeBatter,
+  onOpenSquads,
 }) => {
   const striker = innings.batters[innings.strikerName] || {
     name: innings.strikerName,
@@ -50,7 +52,20 @@ export const BatsmenBowlerCard: React.FC<BatsmenBowlerCardProps> = ({
       {/* Batting Duo Card */}
       <div className="md:col-span-7 bg-slate-900/80 rounded-2xl border border-slate-800 p-3.5 flex flex-col justify-between shadow-md">
         <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-800/80 text-xs text-slate-400 font-medium">
-          <span>Batting</span>
+          <div className="flex items-center space-x-2">
+            <span>Batting</span>
+            {onOpenSquads && (
+              <button
+                type="button"
+                onClick={onOpenSquads}
+                className="flex items-center space-x-1 px-2 py-0.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-[11px] text-emerald-400 font-semibold border border-slate-700 transition-colors"
+                title="Manage squads, add new players, or rename players"
+              >
+                <Users className="w-3 h-3" />
+                <span>Manage Players</span>
+              </button>
+            )}
+          </div>
           <div className="flex items-center space-x-6 text-[11px] font-mono">
             <span className="w-8 text-right">R (B)</span>
             <span className="w-5 text-right">4s</span>

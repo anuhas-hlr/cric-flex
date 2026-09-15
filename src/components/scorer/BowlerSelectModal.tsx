@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { InningsState, MatchRules } from '../../types/cricket';
-import { X, Check } from 'lucide-react';
+import { X, Check, Plus } from 'lucide-react';
 
 interface BowlerSelectModalProps {
   isOpen: boolean;
@@ -10,6 +10,7 @@ interface BowlerSelectModalProps {
   allBowlingPlayers: string[];
   previousBowlerName?: string;
   onSelectBowler: (bowlerName: string) => void;
+  onAddNewBowler?: (bowlerName: string) => void;
 }
 
 export const BowlerSelectModal: React.FC<BowlerSelectModalProps> = ({
@@ -20,8 +21,25 @@ export const BowlerSelectModal: React.FC<BowlerSelectModalProps> = ({
   allBowlingPlayers,
   previousBowlerName,
   onSelectBowler,
+  onAddNewBowler,
 }) => {
+  const [newBowlerInput, setNewBowlerInput] = useState<string>('');
+
   if (!isOpen) return null;
+
+  const handleAddNew = () => {
+    const trimmed = newBowlerInput.trim();
+    if (!trimmed) return;
+    if (onAddNewBowler) {
+      onAddNewBowler(trimmed);
+      setNewBowlerInput('');
+      onClose();
+    } else {
+      onSelectBowler(trimmed);
+      setNewBowlerInput('');
+      onClose();
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
@@ -32,7 +50,7 @@ export const BowlerSelectModal: React.FC<BowlerSelectModalProps> = ({
               Select Next Bowler
             </h3>
             <p className="text-xs text-slate-400">
-              Max {rules.maxOversPerBowler} overs per bowler
+              Select an existing bowler or add a new bowler to bowl (Max {rules.maxOversPerBowler} ov/bowler)
             </p>
           </div>
           <button
@@ -43,7 +61,7 @@ export const BowlerSelectModal: React.FC<BowlerSelectModalProps> = ({
           </button>
         </div>
 
-        <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
+        <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
           {allBowlingPlayers.map((player) => {
             const stats = innings.bowlers[player] || {
               overs: 0,
@@ -110,6 +128,36 @@ export const BowlerSelectModal: React.FC<BowlerSelectModalProps> = ({
               </button>
             );
           })}
+        </div>
+
+        {/* Quick Add New Player to Bowling Team */}
+        <div className="mt-4 pt-3 border-t border-slate-800">
+          <label className="block text-xs font-semibold text-slate-400 mb-1.5">
+            + Add New Bowler to Squad
+          </label>
+          <div className="flex space-x-2">
+            <input
+              type="text"
+              placeholder="Enter new bowler name..."
+              value={newBowlerInput}
+              onChange={(e) => setNewBowlerInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleAddNew();
+                }
+              }}
+              className="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+            />
+            <button
+              type="button"
+              onClick={handleAddNew}
+              className="flex items-center space-x-1 px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-bold rounded-xl text-xs transition-all"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Add & Bowl</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>

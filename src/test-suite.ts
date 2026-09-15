@@ -351,4 +351,40 @@ console.assert(inningsDefeatEval.winner === 'Australia', 'Australia should win b
 console.assert(inningsDefeatEval.resultText.includes('won by an innings and 60 runs'), 'Should declare innings and 60 runs victory');
 console.log(`✓ Innings defeat: "${inningsDefeatEval.resultText}"`);
 
+// Test 8: Custom Player Names & Dynamic Player Squad Addition
+console.log('\n[Test 8] Custom Player Names & Dynamic Squad Addition:');
+const customTeamPlayers = ['Anuhas', 'Liam', 'Sam', 'Kevin'];
+const customOpponents = ['Bowler A', 'Bowler B'];
+let customInn = createInitialInnings('Lions', 'Tigers', customTeamPlayers, customOpponents);
+console.assert(customInn.strikerName === 'Anuhas', 'Striker should be custom player Anuhas');
+console.assert(customInn.nonStrikerName === 'Liam', 'Non-striker should be custom player Liam');
+console.assert(customInn.batters['Anuhas'] !== undefined, 'Anuhas should exist in batters record');
+
+// Score runs with custom player
+let playRes = processBall(customInn, boxRules, { runsOffBat: 6 });
+console.assert(playRes.updatedInnings.batters['Anuhas'].runs === 6, 'Anuhas should have 6 runs');
+console.assert(playRes.updatedInnings.batters['Anuhas'].sixes === 1, 'Anuhas should have 1 six');
+
+// Dynamically add a late-arriving player
+const latePlayer = 'David';
+customInn = {
+  ...playRes.updatedInnings,
+  batters: {
+    ...playRes.updatedInnings.batters,
+    [latePlayer]: {
+      name: latePlayer,
+      runs: 0,
+      balls: 0,
+      fours: 0,
+      sixes: 0,
+      isOut: false,
+      strikeRate: 0,
+    },
+  },
+  strikerName: latePlayer,
+};
+playRes = processBall(customInn, boxRules, { runsOffBat: 4 });
+console.assert(playRes.updatedInnings.batters['David'].runs === 4, 'David should have 4 runs');
+console.log('✓ Custom player names and dynamic player addition verified successfully!');
+
 console.log('\n🎉 ALL ENGINE & RULE TESTS PASSED WITH 100% SUCCESS! 🎉\n');

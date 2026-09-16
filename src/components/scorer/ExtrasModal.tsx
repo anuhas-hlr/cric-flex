@@ -44,15 +44,15 @@ export const ExtrasModal: React.FC<ExtrasModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-      <div className="relative w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-6 text-slate-100">
-        <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-800">
-          <h3 className="font-display font-bold text-lg text-white">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+      <div className="relative w-full max-w-md bg-white border border-slate-200 rounded-3xl shadow-2xl p-6 text-slate-900">
+        <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-100">
+          <h3 className="font-display font-bold text-lg text-slate-900">
             Record Extras
           </h3>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
+            className="p-1 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -71,8 +71,8 @@ export const ExtrasModal: React.FC<ExtrasModalProps> = ({
               }}
               className={`p-3 rounded-xl border text-sm font-semibold transition-all ${
                 selectedType === type
-                  ? 'bg-emerald-500 text-slate-950 border-emerald-400 shadow-md shadow-emerald-500/20'
-                  : 'bg-slate-800/80 text-slate-300 border-slate-700 hover:bg-slate-700'
+                  ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm shadow-emerald-600/20'
+                  : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
               }`}
             >
               {type === 'NO_BALL' ? 'NO BALL' : type.replace('_', ' ')}
@@ -82,8 +82,8 @@ export const ExtrasModal: React.FC<ExtrasModalProps> = ({
 
         {/* Dynamic Sub-options */}
         {selectedType === 'WIDE' && (
-          <div className="mb-5 bg-slate-950/60 p-4 rounded-xl border border-slate-800">
-            <p className="text-xs text-slate-400 mb-2 font-medium">
+          <div className="mb-5 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+            <p className="text-xs text-slate-600 mb-2 font-semibold">
               Additional Byes / Overthrows on Wide:
             </p>
             <div className="flex items-center space-x-2">
@@ -92,25 +92,25 @@ export const ExtrasModal: React.FC<ExtrasModalProps> = ({
                   key={runs}
                   type="button"
                   onClick={() => setAdditionalRuns(runs)}
-                  className={`flex-1 py-2 rounded-lg font-mono text-sm font-bold border transition-colors ${
+                  className={`flex-1 py-2 rounded-xl font-mono text-sm font-bold border transition-colors ${
                     additionalRuns === runs
-                      ? 'bg-amber-500 text-slate-950 border-amber-400'
-                      : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
+                      ? 'bg-amber-500 text-white border-amber-500 shadow-xs'
+                      : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
                   }`}
                 >
                   +{runs}
                 </button>
               ))}
             </div>
-            <p className="text-[11px] text-slate-500 mt-2">
-              Total to batting team: <span className="text-emerald-400 font-bold">{rules.wideRuns + additionalRuns} runs</span> (1 Wide {rules.reBallWide ? '+ re-ball' : ''})
+            <p className="text-[11px] text-slate-500 mt-2.5">
+              Total to batting team: <span className="text-emerald-700 font-bold">{rules.wideRuns + additionalRuns} runs</span> (1 Wide {rules.reBallWide ? '+ re-ball' : ''})
             </p>
           </div>
         )}
 
         {selectedType === 'NO_BALL' && (
-          <div className="mb-5 bg-slate-950/60 p-4 rounded-xl border border-slate-800">
-            <p className="text-xs text-slate-400 mb-2 font-medium">
+          <div className="mb-5 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+            <p className="text-xs text-slate-600 mb-2 font-semibold">
               Runs Scored off No-Ball:
             </p>
             <div className="grid grid-cols-6 gap-1.5">
@@ -119,25 +119,25 @@ export const ExtrasModal: React.FC<ExtrasModalProps> = ({
                   key={runs}
                   type="button"
                   onClick={() => setRunsOffBat(runs)}
-                  className={`py-2 rounded-lg font-mono text-sm font-bold border transition-colors ${
+                  className={`py-2 rounded-xl font-mono text-sm font-bold border transition-colors ${
                     runsOffBat === runs
-                      ? 'bg-orange-500 text-slate-950 border-orange-400'
-                      : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
+                      ? 'bg-orange-500 text-white border-orange-500 shadow-xs'
+                      : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
                   }`}
                 >
                   {runs}
                 </button>
               ))}
             </div>
-            <p className="text-[11px] text-slate-500 mt-2">
-              Total to batting team: <span className="text-emerald-400 font-bold">{rules.noBallRuns + runsOffBat} runs</span> (1 NB penalty + {runsOffBat} off bat)
+            <p className="text-[11px] text-slate-500 mt-2.5">
+              Total to batting team: <span className="text-emerald-700 font-bold">{rules.noBallRuns + runsOffBat} runs</span> (1 NB penalty + {runsOffBat} off bat)
             </p>
           </div>
         )}
 
         {(selectedType === 'BYE' || selectedType === 'LEG_BYE') && (
-          <div className="mb-5 bg-slate-950/60 p-4 rounded-xl border border-slate-800">
-            <p className="text-xs text-slate-400 mb-2 font-medium">
+          <div className="mb-5 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+            <p className="text-xs text-slate-600 mb-2 font-semibold">
               Number of {selectedType === 'BYE' ? 'Byes' : 'Leg Byes'}:
             </p>
             <div className="flex items-center space-x-2">
@@ -146,10 +146,10 @@ export const ExtrasModal: React.FC<ExtrasModalProps> = ({
                   key={runs}
                   type="button"
                   onClick={() => setAdditionalRuns(runs)}
-                  className={`flex-1 py-2 rounded-lg font-mono text-sm font-bold border transition-colors ${
+                  className={`flex-1 py-2 rounded-xl font-mono text-sm font-bold border transition-colors ${
                     (additionalRuns === 0 && runs === 1) || additionalRuns === runs
-                      ? 'bg-emerald-500 text-slate-950 border-emerald-400'
-                      : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
+                      ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
+                      : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
                   }`}
                 >
                   {runs}
@@ -160,7 +160,7 @@ export const ExtrasModal: React.FC<ExtrasModalProps> = ({
         )}
 
         {selectedType === 'PENALTY' && (
-          <div className="mb-5 bg-slate-950/60 p-4 rounded-xl border border-slate-800 text-xs text-slate-300">
+          <div className="mb-5 bg-slate-50 p-4 rounded-2xl border border-slate-200 text-xs text-slate-700 font-medium">
             5 penalty runs will be credited directly to the batting side.
           </div>
         )}
@@ -170,14 +170,14 @@ export const ExtrasModal: React.FC<ExtrasModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-xl text-sm font-medium text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700"
+            className="px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors"
           >
             Cancel
           </button>
           <button
             type="button"
             onClick={handleConfirm}
-            className="flex items-center space-x-1.5 px-5 py-2 rounded-xl text-sm font-bold text-slate-950 bg-emerald-500 hover:bg-emerald-400 shadow-md shadow-emerald-500/20"
+            className="flex items-center space-x-1.5 px-5 py-2 rounded-xl text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-500 shadow-md shadow-emerald-600/20 transition-all active:scale-95"
           >
             <Check className="w-4 h-4" />
             <span>Apply Extras</span>

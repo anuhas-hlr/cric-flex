@@ -74,7 +74,7 @@ export const MatchSummaryCard: React.FC<MatchSummaryCardProps> = ({
     setIsExporting(true);
     try {
       const canvas = await html2canvas(cardRef.current, {
-        backgroundColor: '#080c14',
+        backgroundColor: '#ffffff',
         scale: 2, // High resolution for mobile/retina
         useCORS: true,
       });
@@ -138,9 +138,9 @@ ${scoresText}
   return (
     <div className="space-y-4">
       {/* Top Action Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
-        <div className="flex items-center space-x-2 text-xs text-slate-300">
-          <Sparkles className="w-4 h-4 text-emerald-400" />
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3 rounded-2xl border border-slate-200 shadow-sm">
+        <div className="flex items-center space-x-2 text-xs text-slate-700 font-semibold">
+          <Sparkles className="w-4 h-4 text-emerald-600" />
           <span>Match Report Card & AI Awards</span>
         </div>
 
@@ -149,9 +149,9 @@ ${scoresText}
             type="button"
             disabled={isGeneratingAI}
             onClick={handleGenerateAI}
-            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-indigo-950/60 hover:bg-indigo-900/60 text-indigo-300 border border-indigo-500/30 text-xs font-semibold transition-all active:scale-95"
+            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-xs font-bold transition-all active:scale-95 cursor-pointer"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${isGeneratingAI ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${isGeneratingAI ? 'animate-spin text-indigo-600' : ''}`} />
             <span>{isGeneratingAI ? 'Analyzing...' : 'AI Re-analyze'}</span>
           </button>
 
@@ -159,16 +159,16 @@ ${scoresText}
             type="button"
             disabled={isExporting}
             onClick={handleDownloadImage}
-            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-200 border border-slate-700 text-xs font-semibold transition-all active:scale-95"
+            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 text-xs font-semibold transition-all active:scale-95 cursor-pointer"
           >
-            <Download className="w-3.5 h-3.5 text-emerald-400" />
+            <Download className="w-3.5 h-3.5 text-emerald-600" />
             <span>{isExporting ? 'Exporting...' : 'Save Image'}</span>
           </button>
 
           <button
             type="button"
             onClick={handleShareWhatsApp}
-            className="flex items-center space-x-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-slate-950 text-xs font-bold transition-all active:scale-95 shadow-md shadow-emerald-950/40"
+            className="flex items-center space-x-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all active:scale-95 shadow-sm shadow-emerald-600/30 cursor-pointer"
           >
             <Share2 className="w-3.5 h-3.5" />
             <span>WhatsApp</span>
@@ -179,24 +179,24 @@ ${scoresText}
       {/* Printable / Shareable Card Container */}
       <div
         ref={cardRef}
-        className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0c1424] via-[#09101d] to-[#060a12] border-2 border-emerald-500/30 p-6 sm:p-8 shadow-2xl text-slate-100"
+        className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-white via-slate-50 to-slate-100 border-2 border-emerald-500/30 p-6 sm:p-8 shadow-xl text-slate-900"
       >
-        {/* Glow styling */}
-        <div className="absolute top-0 right-1/4 w-72 h-72 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-1/4 w-72 h-72 rounded-full bg-indigo-500/10 blur-3xl pointer-events-none" />
+        {/* Subtle decorative glows */}
+        <div className="absolute top-0 right-1/4 w-72 h-72 rounded-full bg-emerald-500/5 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-1/4 w-72 h-72 rounded-full bg-indigo-500/5 blur-3xl pointer-events-none" />
 
         {/* Card Header */}
-        <div className="text-center pb-6 border-b border-slate-800/80">
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold uppercase tracking-wider mb-3">
+        <div className="text-center pb-6 border-b border-slate-200">
+          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold uppercase tracking-wider mb-3">
             <Trophy className="w-3.5 h-3.5" />
             <span>Match Concluded</span>
           </div>
 
-          <h2 className="font-display text-2xl sm:text-4xl font-extrabold text-white tracking-tight mb-2">
+          <h2 className="font-display text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mb-2">
             {match.resultText || 'Match Completed'}
           </h2>
 
-          <p className="text-xs sm:text-sm text-slate-400">
+          <p className="text-xs sm:text-sm text-slate-500 font-medium">
             {match.teamA.name} vs {match.teamB.name} • {match.matchType} ({match.rules.ballsPerOver} balls/over)
           </p>
         </div>
@@ -205,45 +205,45 @@ ${scoresText}
         {match.matchType === 'TEST' ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 my-6">
             {/* Team 1 (Batting 1st) */}
-            <div className="bg-slate-900/80 rounded-2xl p-4 border border-slate-800 text-center">
-              <span className="text-xs text-slate-400 font-medium uppercase tracking-wider block mb-1">
+            <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm text-center">
+              <span className="text-xs text-slate-400 font-semibold uppercase tracking-wider block mb-1">
                 Team 1
               </span>
-              <div className="text-lg font-bold text-white mb-2">
+              <div className="text-lg font-bold text-slate-800 mb-2">
                 {match.innings1.battingTeam}
               </div>
-              <div className="font-display text-3xl sm:text-4xl font-black text-emerald-400 font-mono">
+              <div className="font-display text-3xl sm:text-4xl font-black text-emerald-600 font-mono">
                 {match.innings1.totalRuns + (match.innings3 ? match.innings3.totalRuns : 0)}
               </div>
-              <div className="flex justify-center items-center gap-3 text-xs text-slate-300 font-mono mt-2 pt-2 border-t border-slate-800">
+              <div className="flex justify-center items-center gap-3 text-xs text-slate-600 font-mono mt-2 pt-2 border-t border-slate-100">
                 <span>
-                  1st: <strong className="text-white">{match.innings1.totalRuns}/{match.innings1.wicketsLost}</strong>
+                  1st: <strong className="text-slate-900">{match.innings1.totalRuns}/{match.innings1.wicketsLost}</strong>
                 </span>
-                <span className="text-slate-600">•</span>
+                <span className="text-slate-300">•</span>
                 <span>
-                  2nd: <strong className="text-white">{match.innings3 ? `${match.innings3.totalRuns}/${match.innings3.wicketsLost}` : 'DNB'}</strong>
+                  2nd: <strong className="text-slate-900">{match.innings3 ? `${match.innings3.totalRuns}/${match.innings3.wicketsLost}` : 'DNB'}</strong>
                 </span>
               </div>
             </div>
 
             {/* Team 2 (Batting 2nd) */}
-            <div className="bg-slate-900/80 rounded-2xl p-4 border border-slate-800 text-center">
-              <span className="text-xs text-slate-400 font-medium uppercase tracking-wider block mb-1">
+            <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm text-center">
+              <span className="text-xs text-slate-400 font-semibold uppercase tracking-wider block mb-1">
                 Team 2
               </span>
-              <div className="text-lg font-bold text-white mb-2">
+              <div className="text-lg font-bold text-slate-800 mb-2">
                 {match.innings2 ? match.innings2.battingTeam : match.innings1.bowlingTeam}
               </div>
-              <div className="font-display text-3xl sm:text-4xl font-black text-emerald-400 font-mono">
+              <div className="font-display text-3xl sm:text-4xl font-black text-emerald-600 font-mono">
                 {(match.innings2 ? match.innings2.totalRuns : 0) + (match.innings4 ? match.innings4.totalRuns : 0)}
               </div>
-              <div className="flex justify-center items-center gap-3 text-xs text-slate-300 font-mono mt-2 pt-2 border-t border-slate-800">
+              <div className="flex justify-center items-center gap-3 text-xs text-slate-600 font-mono mt-2 pt-2 border-t border-slate-100">
                 <span>
-                  1st: <strong className="text-white">{match.innings2 ? `${match.innings2.totalRuns}/${match.innings2.wicketsLost}` : 'DNB'}</strong>
+                  1st: <strong className="text-slate-900">{match.innings2 ? `${match.innings2.totalRuns}/${match.innings2.wicketsLost}` : 'DNB'}</strong>
                 </span>
-                <span className="text-slate-600">•</span>
+                <span className="text-slate-300">•</span>
                 <span>
-                  2nd: <strong className="text-white">{match.innings4 ? `${match.innings4.totalRuns}/${match.innings4.wicketsLost}` : 'DNB'}</strong>
+                  2nd: <strong className="text-slate-900">{match.innings4 ? `${match.innings4.totalRuns}/${match.innings4.wicketsLost}` : 'DNB'}</strong>
                 </span>
               </div>
             </div>
@@ -251,33 +251,33 @@ ${scoresText}
         ) : (
           /* Limited Overs Scores */
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 my-6">
-            <div className="bg-slate-900/80 rounded-2xl p-4 border border-slate-800 text-center">
-              <span className="text-xs text-slate-400 font-medium uppercase tracking-wider block mb-1">
+            <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm text-center">
+              <span className="text-xs text-slate-400 font-semibold uppercase tracking-wider block mb-1">
                 1st Innings
               </span>
-              <div className="text-base font-bold text-slate-200">
+              <div className="text-base font-bold text-slate-800">
                 {match.innings1.battingTeam}
               </div>
-              <div className="font-display text-3xl sm:text-4xl font-black text-white font-mono mt-1">
+              <div className="font-display text-3xl sm:text-4xl font-black text-emerald-600 font-mono mt-1">
                 {match.innings1.totalRuns}/{match.innings1.wicketsLost}
               </div>
-              <div className="text-xs text-slate-400 font-mono mt-1">
+              <div className="text-xs text-slate-500 font-mono mt-1 font-semibold">
                 {formatOvers(match.innings1.legalBallsBowled, match.rules.ballsPerOver)} / {match.rules.totalOvers} overs
               </div>
             </div>
 
             {match.innings2 && (
-              <div className="bg-slate-900/80 rounded-2xl p-4 border border-slate-800 text-center">
-                <span className="text-xs text-slate-400 font-medium uppercase tracking-wider block mb-1">
+              <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm text-center">
+                <span className="text-xs text-slate-400 font-semibold uppercase tracking-wider block mb-1">
                   2nd Innings
                 </span>
-                <div className="text-base font-bold text-slate-200">
+                <div className="text-base font-bold text-slate-800">
                   {match.innings2.battingTeam}
                 </div>
-                <div className="font-display text-3xl sm:text-4xl font-black text-white font-mono mt-1">
+                <div className="font-display text-3xl sm:text-4xl font-black text-emerald-600 font-mono mt-1">
                   {match.innings2.totalRuns}/{match.innings2.wicketsLost}
                 </div>
-                <div className="text-xs text-slate-400 font-mono mt-1">
+                <div className="text-xs text-slate-500 font-mono mt-1 font-semibold">
                   {formatOvers(match.innings2.legalBallsBowled, match.rules.ballsPerOver)} / {match.rules.totalOvers} overs
                 </div>
               </div>
@@ -289,15 +289,15 @@ ${scoresText}
         {summary ? (
           <div className="space-y-4 pt-2">
             {/* Player of the Match Banner */}
-            <div className="bg-gradient-to-r from-amber-500/15 via-amber-500/5 to-transparent border-l-4 border-amber-400 rounded-2xl p-4 bg-slate-900/70 border-y border-r border-slate-800">
-              <div className="flex items-center space-x-2 text-amber-400 text-xs font-bold uppercase tracking-wider mb-1">
-                <Award className="w-4 h-4" />
+            <div className="bg-gradient-to-r from-amber-50 via-amber-50/50 to-white border-l-4 border-amber-500 rounded-2xl p-4 border-y border-r border-amber-200 shadow-sm">
+              <div className="flex items-center space-x-2 text-amber-700 text-xs font-bold uppercase tracking-wider mb-1">
+                <Award className="w-4 h-4 text-amber-600" />
                 <span>Player of the Match</span>
               </div>
-              <div className="text-xl font-display font-extrabold text-white">
+              <div className="text-xl font-display font-extrabold text-slate-900">
                 {summary.potm}
               </div>
-              <p className="text-xs text-slate-300 mt-1">
+              <p className="text-xs text-slate-600 mt-1 font-medium">
                 {summary.potmReason}
               </p>
             </div>
@@ -305,68 +305,68 @@ ${scoresText}
             {/* Other 3 Honors Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {/* Best Batter */}
-              <div className="bg-slate-900/60 rounded-2xl p-3.5 border border-slate-800">
-                <div className="text-xs text-blue-400 font-semibold mb-1 flex items-center space-x-1.5">
-                  <Flame className="w-3.5 h-3.5" />
+              <div className="bg-blue-50/50 rounded-2xl p-3.5 border border-blue-200/80 shadow-xs">
+                <div className="text-xs text-blue-700 font-bold mb-1 flex items-center space-x-1.5">
+                  <Flame className="w-3.5 h-3.5 text-blue-600" />
                   <span>Best Batter</span>
                 </div>
-                <div className="text-sm font-bold text-white mb-0.5">
+                <div className="text-sm font-bold text-slate-900 mb-0.5">
                   {summary.bestBatter}
                 </div>
-                <p className="text-[11px] text-slate-400 leading-tight">
+                <p className="text-[11px] text-slate-600 leading-tight">
                   {summary.bestBatterReason}
                 </p>
               </div>
 
               {/* Best Bowler */}
-              <div className="bg-slate-900/60 rounded-2xl p-3.5 border border-slate-800">
-                <div className="text-xs text-emerald-400 font-semibold mb-1 flex items-center space-x-1.5">
-                  <Shield className="w-3.5 h-3.5" />
+              <div className="bg-emerald-50/50 rounded-2xl p-3.5 border border-emerald-200/80 shadow-xs">
+                <div className="text-xs text-emerald-700 font-bold mb-1 flex items-center space-x-1.5">
+                  <Shield className="w-3.5 h-3.5 text-emerald-600" />
                   <span>Best Bowler</span>
                 </div>
-                <div className="text-sm font-bold text-white mb-0.5">
+                <div className="text-sm font-bold text-slate-900 mb-0.5">
                   {summary.bestBowler}
                 </div>
-                <p className="text-[11px] text-slate-400 leading-tight">
+                <p className="text-[11px] text-slate-600 leading-tight">
                   {summary.bestBowlerReason}
                 </p>
               </div>
 
               {/* Best Fielder */}
-              <div className="bg-slate-900/60 rounded-2xl p-3.5 border border-slate-800">
-                <div className="text-xs text-purple-400 font-semibold mb-1 flex items-center space-x-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5" />
+              <div className="bg-purple-50/50 rounded-2xl p-3.5 border border-purple-200/80 shadow-xs">
+                <div className="text-xs text-purple-700 font-bold mb-1 flex items-center space-x-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-purple-600" />
                   <span>Best Fielder</span>
                 </div>
-                <div className="text-sm font-bold text-white mb-0.5">
+                <div className="text-sm font-bold text-slate-900 mb-0.5">
                   {summary.bestFielder}
                 </div>
-                <p className="text-[11px] text-slate-400 leading-tight">
+                <p className="text-[11px] text-slate-600 leading-tight">
                   {summary.bestFielderReason}
                 </p>
               </div>
             </div>
 
             {/* Match Narrative */}
-            <div className="bg-slate-950/70 rounded-2xl p-4 border border-slate-800/80">
-              <div className="text-xs text-emerald-400 font-semibold uppercase tracking-wider mb-1.5 flex items-center space-x-1.5">
-                <Sparkles className="w-3.5 h-3.5" />
+            <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 shadow-xs">
+              <div className="text-xs text-emerald-700 font-bold uppercase tracking-wider mb-1.5 flex items-center space-x-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
                 <span>Editorial Match Recap</span>
               </div>
-              <p className="text-xs sm:text-sm text-slate-300 italic leading-relaxed">
+              <p className="text-xs sm:text-sm text-slate-700 italic leading-relaxed">
                 "{summary.narrative}"
               </p>
             </div>
           </div>
         ) : (
-          <div className="text-center py-6 bg-slate-950/40 rounded-2xl border border-slate-800">
-            <Sparkles className="w-8 h-8 text-emerald-400 mx-auto mb-2 animate-spin" />
-            <p className="text-xs text-slate-400">Compiling AI Match Honors & Stats...</p>
+          <div className="text-center py-6 bg-slate-50 rounded-2xl border border-slate-200">
+            <Sparkles className="w-8 h-8 text-emerald-600 mx-auto mb-2 animate-spin" />
+            <p className="text-xs text-slate-500 font-medium">Compiling AI Match Honors & Stats...</p>
           </div>
         )}
 
         {/* Footer Brand */}
-        <div className="mt-6 pt-4 border-t border-slate-800/60 flex items-center justify-between text-[11px] text-slate-500">
+        <div className="mt-6 pt-4 border-t border-slate-200 flex items-center justify-between text-[11px] text-slate-400 font-medium">
           <span>🏏 CricFlex (Zero-DB Edition)</span>
           <span>Offline Browser PWA</span>
         </div>

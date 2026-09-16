@@ -190,16 +190,16 @@ export const TournamentManager: React.FC<TournamentManagerProps> = ({
   return (
     <div className="space-y-6">
       {/* Top Bar: Selector & Create Button */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-900/80 p-4 rounded-2xl border border-slate-800">
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
         <div className="flex items-center space-x-3">
-          <div className="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center">
+          <div className="w-9 h-9 rounded-xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center">
             <Trophy className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="font-display font-bold text-lg text-white">
+            <h2 className="font-display font-bold text-lg text-slate-900">
               Tournament Manager
             </h2>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-500">
               Round-robin points tables, live NRR calculation, Orange & Purple caps
             </p>
           </div>
@@ -213,7 +213,7 @@ export const TournamentManager: React.FC<TournamentManagerProps> = ({
                 const found = tournaments.find((t) => t.id === e.target.value);
                 if (found) setSelectedTournament(found);
               }}
-              className="bg-slate-800 border border-slate-700 text-white rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:border-emerald-500"
+              className="bg-slate-50 border border-slate-200 text-slate-800 rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:border-emerald-500 cursor-pointer"
             >
               {tournaments.map((t) => (
                 <option key={t.id} value={t.id}>
@@ -228,10 +228,10 @@ export const TournamentManager: React.FC<TournamentManagerProps> = ({
               type="button"
               disabled={isRefreshing}
               onClick={loadTournaments}
-              className="flex items-center space-x-1.5 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-300 hover:text-white border border-slate-700 text-xs font-semibold transition-all active:scale-95"
+              className="flex items-center space-x-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 text-xs font-semibold transition-all active:scale-95 cursor-pointer"
               title="Re-sync tournament points table and fixtures"
             >
-              <RefreshCw className={`w-3.5 h-3.5 text-emerald-400 ${isRefreshing ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`w-3.5 h-3.5 text-emerald-600 ${isRefreshing ? 'animate-spin' : ''}`} />
               <span className="hidden sm:inline">Refresh Table</span>
             </button>
           )}
@@ -239,7 +239,7 @@ export const TournamentManager: React.FC<TournamentManagerProps> = ({
           <button
             type="button"
             onClick={() => setIsCreating(true)}
-            className="flex items-center space-x-1.5 px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition-all shadow-md shadow-emerald-950/40"
+            className="flex items-center space-x-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-sm shadow-emerald-600/30 cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Create Tournament</span>
@@ -253,91 +253,91 @@ export const TournamentManager: React.FC<TournamentManagerProps> = ({
           {/* Tournament Overview & Caps */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Tournament Details Banner */}
-            <div className="bg-slate-900/80 rounded-2xl border border-slate-800 p-4 flex flex-col justify-between">
+            <div className="bg-white rounded-2xl border border-slate-200 p-4 flex flex-col justify-between shadow-sm">
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                  <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200">
                     Round-Robin
                   </span>
                   <button
                     onClick={() => handleDeleteTournament(selectedTournament.id)}
-                    className="p-1 rounded-lg text-slate-500 hover:text-red-400 hover:bg-slate-800 transition-colors"
+                    className="p-1 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
                     title="Delete tournament"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
-                <h3 className="font-display font-bold text-xl text-white mb-1">
+                <h3 className="font-display font-bold text-xl text-slate-900 mb-1">
                   {selectedTournament.name}
                 </h3>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-slate-500">
                   {selectedTournament.teams.length} Teams • {selectedTournament.rules.totalOvers} Overs • {selectedTournament.rules.ballsPerOver} Balls/Over
                 </p>
               </div>
             </div>
 
             {/* Orange Cap Leaderboard */}
-            <div className="bg-gradient-to-br from-amber-500/15 via-slate-900/90 to-slate-900/90 rounded-2xl border border-amber-500/30 p-4 flex items-center space-x-3.5">
-              <div className="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center text-2xl">
+            <div className="bg-gradient-to-br from-amber-50 via-white to-white rounded-2xl border border-amber-200 p-4 flex items-center space-x-3.5 shadow-sm">
+              <div className="w-12 h-12 rounded-2xl bg-amber-100 border border-amber-200 text-amber-600 flex items-center justify-center text-2xl">
                 🟠
               </div>
               <div>
-                <div className="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center space-x-1">
-                  <Flame className="w-3.5 h-3.5" />
+                <div className="text-xs font-bold text-amber-700 uppercase tracking-wider flex items-center space-x-1">
+                  <Flame className="w-3.5 h-3.5 text-amber-600" />
                   <span>Orange Cap (Top Runs)</span>
                 </div>
                 {selectedTournament.orangeCap ? (
                   <>
-                    <div className="font-display font-black text-lg text-white">
+                    <div className="font-display font-black text-lg text-slate-900">
                       {selectedTournament.orangeCap.playerName}
                     </div>
-                    <div className="text-xs text-slate-300 font-mono">
-                      <span className="text-amber-400 font-bold">{selectedTournament.orangeCap.value}</span> runs ({selectedTournament.orangeCap.teamName})
+                    <div className="text-xs text-slate-600 font-mono">
+                      <span className="text-amber-700 font-bold">{selectedTournament.orangeCap.value}</span> runs ({selectedTournament.orangeCap.teamName})
                     </div>
                   </>
                 ) : (
-                  <p className="text-xs text-slate-500 mt-1">Play matches to unlock cap</p>
+                  <p className="text-xs text-slate-400 mt-1">Play matches to unlock cap</p>
                 )}
               </div>
             </div>
 
             {/* Purple Cap Leaderboard */}
-            <div className="bg-gradient-to-br from-purple-500/15 via-slate-900/90 to-slate-900/90 rounded-2xl border border-purple-500/30 p-4 flex items-center space-x-3.5">
-              <div className="w-12 h-12 rounded-2xl bg-purple-500/20 border border-purple-500/40 text-purple-400 flex items-center justify-center text-2xl">
+            <div className="bg-gradient-to-br from-purple-50 via-white to-white rounded-2xl border border-purple-200 p-4 flex items-center space-x-3.5 shadow-sm">
+              <div className="w-12 h-12 rounded-2xl bg-purple-100 border border-purple-200 text-purple-600 flex items-center justify-center text-2xl">
                 🟣
               </div>
               <div>
-                <div className="text-xs font-bold text-purple-400 uppercase tracking-wider flex items-center space-x-1">
-                  <Shield className="w-3.5 h-3.5" />
+                <div className="text-xs font-bold text-purple-700 uppercase tracking-wider flex items-center space-x-1">
+                  <Shield className="w-3.5 h-3.5 text-purple-600" />
                   <span>Purple Cap (Top Wickets)</span>
                 </div>
                 {selectedTournament.purpleCap ? (
                   <>
-                    <div className="font-display font-black text-lg text-white">
+                    <div className="font-display font-black text-lg text-slate-900">
                       {selectedTournament.purpleCap.playerName}
                     </div>
-                    <div className="text-xs text-slate-300 font-mono">
-                      <span className="text-purple-400 font-bold">{selectedTournament.purpleCap.value}</span> wickets ({selectedTournament.purpleCap.teamName})
+                    <div className="text-xs text-slate-600 font-mono">
+                      <span className="text-purple-700 font-bold">{selectedTournament.purpleCap.value}</span> wickets ({selectedTournament.purpleCap.teamName})
                     </div>
                   </>
                 ) : (
-                  <p className="text-xs text-slate-500 mt-1">Play matches to unlock cap</p>
+                  <p className="text-xs text-slate-400 mt-1">Play matches to unlock cap</p>
                 )}
               </div>
             </div>
           </div>
 
           {/* Points Table */}
-          <div className="bg-slate-900/90 rounded-2xl border border-slate-800 p-4 sm:p-5 shadow-xl">
-            <h3 className="font-display font-bold text-base text-white mb-3 flex items-center space-x-2">
-              <Trophy className="w-4 h-4 text-amber-400" />
+          <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-sm">
+            <h3 className="font-display font-bold text-base text-slate-900 mb-3 flex items-center space-x-2">
+              <Trophy className="w-4 h-4 text-amber-500" />
               <span>Standings & Net Run Rate (NRR)</span>
             </h3>
 
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto rounded-xl border border-slate-200">
               <table className="w-full text-left text-xs">
                 <thead>
-                  <tr className="border-b border-slate-800 text-slate-400 font-mono text-[11px]">
+                  <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-mono text-[11px]">
                     <th className="py-2.5 px-3 font-semibold">Pos</th>
                     <th className="py-2.5 px-3 font-semibold">Team</th>
                     <th className="py-2.5 px-2 text-right font-semibold">P</th>
@@ -345,33 +345,35 @@ export const TournamentManager: React.FC<TournamentManagerProps> = ({
                     <th className="py-2.5 px-2 text-right font-semibold">L</th>
                     <th className="py-2.5 px-2 text-right font-semibold">T</th>
                     <th className="py-2.5 px-3 text-right font-semibold">NRR</th>
-                    <th className="py-2.5 px-3 text-right font-bold text-emerald-400">Pts</th>
+                    <th className="py-2.5 px-3 text-right font-bold text-emerald-700">Pts</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800/60 font-mono">
+                <tbody className="divide-y divide-slate-100 font-mono">
                   {selectedTournament.standings.map((team, idx) => (
                     <tr
                       key={team.teamName}
-                      className={`hover:bg-slate-800/30 transition-colors ${
-                        idx === 0 ? 'bg-amber-500/5' : ''
+                      className={`hover:bg-slate-50/80 transition-colors ${
+                        idx === 0 ? 'bg-amber-50/40' : ''
                       }`}
                     >
                       <td className="py-2.5 px-3 font-bold text-slate-400">{idx + 1}</td>
-                      <td className="py-2.5 px-3 font-sans font-bold text-slate-100 flex items-center space-x-1.5">
+                      <td className="py-2.5 px-3 font-sans font-bold text-slate-900 flex items-center space-x-1.5">
                         <span>{team.teamName}</span>
-                        {idx === 0 && <span className="text-amber-400 text-xs">👑</span>}
+                        {idx === 0 && <span className="text-amber-500 text-xs">👑</span>}
                       </td>
-                      <td className="py-2.5 px-2 text-right text-slate-300">{team.played}</td>
-                      <td className="py-2.5 px-2 text-right text-emerald-400 font-semibold">{team.won}</td>
-                      <td className="py-2.5 px-2 text-right text-red-400">{team.lost}</td>
-                      <td className="py-2.5 px-2 text-right text-slate-400">{team.tied}</td>
+                      <td className="py-2.5 px-2 text-right text-slate-600">{team.played}</td>
+                      <td className="py-2.5 px-2 text-right text-emerald-600 font-bold">{team.won}</td>
+                      <td className="py-2.5 px-2 text-right text-rose-600 font-medium">{team.lost}</td>
+                      <td className="py-2.5 px-2 text-right text-slate-500">{team.tied}</td>
                       <td className={`py-2.5 px-3 text-right font-semibold ${
-                        team.nrr > 0 ? 'text-emerald-400' : team.nrr < 0 ? 'text-red-400' : 'text-slate-400'
+                        team.nrr > 0 ? 'text-emerald-600' : team.nrr < 0 ? 'text-rose-600' : 'text-slate-500'
                       }`}>
                         {team.nrr > 0 ? `+${team.nrr}` : team.nrr}
                       </td>
-                      <td className="py-2.5 px-3 text-right font-bold text-emerald-300 text-sm">
-                        {team.points}
+                      <td className="py-2.5 px-3 text-right font-bold text-emerald-700 text-sm">
+                        <span className="bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                          {team.points}
+                        </span>
                       </td>
                     </tr>
                   ))}
@@ -381,9 +383,9 @@ export const TournamentManager: React.FC<TournamentManagerProps> = ({
           </div>
 
           {/* Fixtures Schedule */}
-          <div className="bg-slate-900/90 rounded-2xl border border-slate-800 p-4 sm:p-5 shadow-xl">
-            <h3 className="font-display font-bold text-base text-white mb-3 flex items-center space-x-2">
-              <Calendar className="w-4 h-4 text-emerald-400" />
+          <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-sm">
+            <h3 className="font-display font-bold text-base text-slate-900 mb-3 flex items-center space-x-2">
+              <Calendar className="w-4 h-4 text-emerald-600" />
               <span>Fixtures & Schedule</span>
             </h3>
 
@@ -391,35 +393,37 @@ export const TournamentManager: React.FC<TournamentManagerProps> = ({
               {selectedTournament.fixtures.map((fixture) => (
                 <div
                   key={fixture.id}
-                  className="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 flex flex-col justify-between"
+                  className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 hover:border-slate-300 transition-colors flex flex-col justify-between"
                 >
-                  <div className="flex items-center justify-between text-xs text-slate-400 mb-2">
-                    <span className="font-semibold text-slate-300">{fixture.roundName}</span>
+                  <div className="flex items-center justify-between text-xs text-slate-500 mb-2">
+                    <span className="font-semibold text-slate-700">{fixture.roundName}</span>
                     {fixture.isCompleted ? (
-                      <span className="flex items-center text-emerald-400 text-[11px] font-medium">
-                        <CheckCircle2 className="w-3 h-3 mr-1" />
+                      <span className="flex items-center text-emerald-700 text-[11px] font-bold">
+                        <CheckCircle2 className="w-3.5 h-3.5 mr-1 text-emerald-600" />
                         Completed
                       </span>
                     ) : (
-                      <span className="text-amber-400/90 text-[11px]">Upcoming</span>
+                      <span className="text-amber-700 text-[11px] font-semibold bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                        Upcoming
+                      </span>
                     )}
                   </div>
 
-                  <div className="my-1.5 font-bold text-sm text-white">
-                    {fixture.teamA} <span className="text-slate-500 font-normal text-xs">vs</span> {fixture.teamB}
+                  <div className="my-1.5 font-bold text-sm text-slate-900">
+                    {fixture.teamA} <span className="text-slate-400 font-normal text-xs">vs</span> {fixture.teamB}
                   </div>
 
                   {fixture.winner && (
-                    <div className="text-xs text-emerald-300 font-medium mb-2">
+                    <div className="text-xs text-emerald-700 font-semibold mb-2">
                       🏆 Won by {fixture.winner}
                     </div>
                   )}
 
-                  <div className="pt-2 border-t border-slate-800/80 flex justify-end">
+                  <div className="pt-2 border-t border-slate-200 flex justify-end">
                     {fixture.matchId ? (
                       <button
                         onClick={() => onViewMatchScorecard(fixture.matchId!)}
-                        className="px-3 py-1 text-xs font-semibold text-indigo-300 bg-indigo-950/50 hover:bg-indigo-900/50 border border-indigo-500/30 rounded-lg transition-colors"
+                        className="px-3 py-1 text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-lg transition-colors cursor-pointer"
                       >
                         View Scorecard
                       </button>
@@ -433,9 +437,9 @@ export const TournamentManager: React.FC<TournamentManagerProps> = ({
                             selectedTournament.rules
                           )
                         }
-                        className="flex items-center space-x-1.5 px-3 py-1.5 text-xs font-bold text-slate-950 bg-emerald-500 hover:bg-emerald-400 rounded-lg transition-all shadow-sm"
+                        className="flex items-center space-x-1.5 px-3 py-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-all shadow-sm shadow-emerald-600/30 cursor-pointer"
                       >
-                        <Play className="w-3.5 h-3.5 fill-slate-950" />
+                        <Play className="w-3.5 h-3.5 fill-white" />
                         <span>Play Match</span>
                       </button>
                     )}
@@ -446,17 +450,17 @@ export const TournamentManager: React.FC<TournamentManagerProps> = ({
           </div>
         </div>
       ) : (
-        <div className="text-center py-12 bg-slate-900/60 rounded-3xl border border-slate-800 p-6">
-          <Trophy className="w-12 h-12 text-slate-600 mx-auto mb-3" />
-          <h3 className="font-display font-bold text-lg text-white mb-1">
+        <div className="text-center py-12 bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
+          <Trophy className="w-12 h-12 text-amber-500 mx-auto mb-3" />
+          <h3 className="font-display font-bold text-lg text-slate-900 mb-1">
             No Tournaments Created Yet
           </h3>
-          <p className="text-xs text-slate-400 max-w-sm mx-auto mb-4">
+          <p className="text-xs text-slate-500 max-w-sm mx-auto mb-4">
             Host gully or box cricket leagues, track points tables with automated NRR, and award Orange & Purple caps!
           </p>
           <button
             onClick={() => setIsCreating(true)}
-            className="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold"
+            className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-sm shadow-emerald-600/30 cursor-pointer"
           >
             Create Your First Tournament
           </button>
@@ -465,15 +469,15 @@ export const TournamentManager: React.FC<TournamentManagerProps> = ({
 
       {/* Create Tournament Modal */}
       {isCreating && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
-          <div className="relative w-full max-w-lg bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl p-6 text-slate-100">
-            <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-800">
-              <h3 className="font-display font-bold text-lg text-white">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+          <div className="relative w-full max-w-lg bg-white border border-slate-200 rounded-3xl shadow-2xl p-6 text-slate-900">
+            <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-100">
+              <h3 className="font-display font-bold text-lg text-slate-900">
                 Create New Tournament
               </h3>
               <button
                 onClick={() => setIsCreating(false)}
-                className="p-1 rounded-lg text-slate-400 hover:text-white"
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -481,7 +485,7 @@ export const TournamentManager: React.FC<TournamentManagerProps> = ({
 
             <form onSubmit={handleCreateTournament} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1">
+                <label className="block text-xs font-bold text-slate-600 mb-1">
                   Tournament Name
                 </label>
                 <input
@@ -489,12 +493,12 @@ export const TournamentManager: React.FC<TournamentManagerProps> = ({
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-emerald-500 focus:bg-white"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1">
+                <label className="block text-xs font-bold text-slate-600 mb-1">
                   Participating Teams (comma-separated)
                 </label>
                 <input
@@ -503,44 +507,44 @@ export const TournamentManager: React.FC<TournamentManagerProps> = ({
                   value={teamInput}
                   onChange={(e) => setTeamInput(e.target.value)}
                   placeholder="e.g. Royal Kings, Turf Strikers, Mumbai Tigers"
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-emerald-500 focus:bg-white"
                 />
               </div>
 
               <div className="grid grid-cols-3 gap-3 text-xs">
                 <div>
-                  <label className="block text-slate-400 mb-1">Overs / Match</label>
+                  <label className="block font-semibold text-slate-600 mb-1">Overs / Match</label>
                   <input
                     type="number"
                     min="1"
                     max="500"
                     value={overs}
                     onChange={(e) => setOvers(Number(e.target.value) || 6)}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-white font-mono"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-slate-800 font-mono focus:outline-none focus:border-emerald-500 focus:bg-white"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-slate-400 mb-1">Balls / Over</label>
+                  <label className="block font-semibold text-slate-600 mb-1">Balls / Over</label>
                   <input
                     type="number"
                     min="2"
                     max="10"
                     value={ballsPerOver}
                     onChange={(e) => setBallsPerOver(Number(e.target.value) || 4)}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-white font-mono"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-slate-800 font-mono focus:outline-none focus:border-emerald-500 focus:bg-white"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-slate-400 mb-1">Players / Team</label>
+                  <label className="block font-semibold text-slate-600 mb-1">Players / Team</label>
                   <input
                     type="number"
                     min="2"
                     max="20"
                     value={playersPerTeam}
                     onChange={(e) => setPlayersPerTeam(Number(e.target.value) || 6)}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-white font-mono"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-slate-800 font-mono focus:outline-none focus:border-emerald-500 focus:bg-white"
                   />
                 </div>
               </div>
@@ -549,13 +553,13 @@ export const TournamentManager: React.FC<TournamentManagerProps> = ({
                 <button
                   type="button"
                   onClick={() => setIsCreating(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-medium text-slate-400 bg-slate-800 hover:bg-slate-750"
+                  className="px-4 py-2 rounded-xl text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl text-xs font-bold text-slate-950 bg-emerald-500 hover:bg-emerald-400"
+                  className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-all shadow-sm shadow-emerald-600/30 cursor-pointer"
                 >
                   Generate League & Fixtures
                 </button>

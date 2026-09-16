@@ -251,26 +251,26 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md overflow-y-auto">
-      <div className="relative w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl p-6 text-slate-100 my-8">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm overflow-y-auto">
+      <div className="relative w-full max-w-2xl bg-white border border-slate-200 rounded-3xl shadow-2xl p-6 text-slate-900 my-8">
         {/* Header */}
-        <div className="flex items-center justify-between pb-4 mb-5 border-b border-slate-800">
+        <div className="flex items-center justify-between pb-4 mb-5 border-b border-slate-100">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 text-white flex items-center justify-center text-xl shadow-md shadow-emerald-500/20">
               🏏
             </div>
             <div>
-              <h2 className="font-display font-bold text-xl text-white">
+              <h2 className="font-display font-bold text-xl text-slate-900">
                 New Cricket Match
               </h2>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-500">
                 Setup match format, teams, and tournament rules
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -279,10 +279,10 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
         <form onSubmit={handleCreate} className="space-y-6">
           {/* Tournament Fixture Alert Banner if match was launched from tournament */}
           {tournamentId && (
-            <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-3.5 flex items-center space-x-3 text-xs text-amber-300">
+            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-3.5 flex items-center space-x-3 text-xs text-amber-800">
               <span className="text-xl">🏆</span>
               <div>
-                <span className="font-bold block text-white">Playing Tournament Fixture</span>
+                <span className="font-bold block text-slate-900">Playing Tournament Fixture</span>
                 <span>This match will automatically update the league points table, Net Run Rate (NRR), and tournament cap leaderboards upon completion.</span>
               </div>
             </div>
@@ -290,7 +290,7 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
 
           {/* Preset Selector */}
           <div>
-            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2.5">
+            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2.5">
               Select Match Format Preset
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
@@ -299,12 +299,12 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
                 onClick={() => handleSelectPreset('BOX_GULLY')}
                 className={`p-3 rounded-2xl border text-left transition-all ${
                   matchType === 'BOX_GULLY'
-                    ? 'bg-emerald-500/20 border-emerald-500 shadow-md shadow-emerald-950/40'
-                    : 'bg-slate-800/60 border-slate-700 hover:bg-slate-800'
+                    ? 'bg-emerald-50 border-emerald-500 shadow-sm shadow-emerald-500/15'
+                    : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
                 }`}
               >
-                <div className="text-sm font-bold text-white mb-1">📦 Box Gully</div>
-                <div className="text-[11px] text-emerald-400 font-mono">6 Ov • 4 b/ov • LMS</div>
+                <div className="text-sm font-bold text-slate-900 mb-1">📦 Box Gully</div>
+                <div className="text-[11px] text-emerald-700 font-mono font-semibold">6 Ov • 4 b/ov • LMS</div>
               </button>
 
               <button
@@ -312,12 +312,12 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
                 onClick={() => handleSelectPreset('CUSTOM')}
                 className={`p-3 rounded-2xl border text-left transition-all ${
                   matchType === 'CUSTOM'
-                    ? 'bg-emerald-500/20 border-emerald-500 shadow-md shadow-emerald-950/40'
-                    : 'bg-slate-800/60 border-slate-700 hover:bg-slate-800'
+                    ? 'bg-emerald-50 border-emerald-500 shadow-sm shadow-emerald-500/15'
+                    : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
                 }`}
               >
-                <div className="text-sm font-bold text-white mb-1">⚡ Turf Box</div>
-                <div className="text-[11px] text-emerald-400 font-mono">8 Ov • 6 b/ov • 8s</div>
+                <div className="text-sm font-bold text-slate-900 mb-1">⚡ Turf Box</div>
+                <div className="text-[11px] text-emerald-700 font-mono font-semibold">8 Ov • 6 b/ov • 8s</div>
               </button>
 
               <button
@@ -325,12 +325,12 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
                 onClick={() => handleSelectPreset('T20')}
                 className={`p-3 rounded-2xl border text-left transition-all ${
                   matchType === 'T20'
-                    ? 'bg-emerald-500/20 border-emerald-500 shadow-md shadow-emerald-950/40'
-                    : 'bg-slate-800/60 border-slate-700 hover:bg-slate-800'
+                    ? 'bg-emerald-50 border-emerald-500 shadow-sm shadow-emerald-500/15'
+                    : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
                 }`}
               >
-                <div className="text-sm font-bold text-white mb-1">🏆 T20 Match</div>
-                <div className="text-[11px] text-emerald-400 font-mono">20 Ov • 6 b/ov • 11s</div>
+                <div className="text-sm font-bold text-slate-900 mb-1">🏆 T20 Match</div>
+                <div className="text-[11px] text-emerald-700 font-mono font-semibold">20 Ov • 6 b/ov • 11s</div>
               </button>
 
               <button
@@ -338,12 +338,12 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
                 onClick={() => handleSelectPreset('ODI')}
                 className={`p-3 rounded-2xl border text-left transition-all ${
                   matchType === 'ODI'
-                    ? 'bg-emerald-500/20 border-emerald-500 shadow-md shadow-emerald-950/40'
-                    : 'bg-slate-800/60 border-slate-700 hover:bg-slate-800'
+                    ? 'bg-emerald-50 border-emerald-500 shadow-sm shadow-emerald-500/15'
+                    : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
                 }`}
               >
-                <div className="text-sm font-bold text-white mb-1">🌍 One Day</div>
-                <div className="text-[11px] text-emerald-400 font-mono">50 Ov • 6 b/ov • 11s</div>
+                <div className="text-sm font-bold text-slate-900 mb-1">🌍 One Day</div>
+                <div className="text-[11px] text-emerald-700 font-mono font-semibold">50 Ov • 6 b/ov • 11s</div>
               </button>
 
               <button
@@ -351,89 +351,89 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
                 onClick={() => handleSelectPreset('TEST')}
                 className={`p-3 rounded-2xl border text-left transition-all ${
                   matchType === 'TEST'
-                    ? 'bg-emerald-500/20 border-emerald-500 shadow-md shadow-emerald-950/40'
-                    : 'bg-slate-800/60 border-slate-700 hover:bg-slate-800'
+                    ? 'bg-emerald-50 border-emerald-500 shadow-sm shadow-emerald-500/15'
+                    : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
                 }`}
               >
-                <div className="text-sm font-bold text-white mb-1">🔴 Test Match</div>
-                <div className="text-[11px] text-emerald-400 font-mono">2 Innings • Open Overs • 11s</div>
+                <div className="text-sm font-bold text-slate-900 mb-1">🔴 Test Match</div>
+                <div className="text-[11px] text-emerald-700 font-mono font-semibold">2 Inn • Open Ov • 11s</div>
               </button>
             </div>
           </div>
 
           {/* Rule Tweaks */}
-          <div className="bg-slate-950/60 p-4 rounded-2xl border border-slate-800">
-            <div className="flex items-center space-x-2 mb-3 text-xs font-semibold text-slate-300">
-              <Sliders className="w-4 h-4 text-emerald-400" />
+          <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+            <div className="flex items-center space-x-2 mb-3 text-xs font-bold text-slate-700">
+              <Sliders className="w-4 h-4 text-emerald-600" />
               <span>Custom Rule Engine Settings</span>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
               <div>
-                <label className="block text-slate-400 mb-1">Total Overs</label>
+                <label className="block text-slate-500 font-semibold mb-1">Total Overs</label>
                 <input
                   type="number"
                   min="1"
                   max="500"
                   value={rules.totalOvers}
                   onChange={(e) => setRules({ ...rules, totalOvers: Number(e.target.value) || 1 })}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-white font-mono"
+                  className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-mono font-semibold focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
                 />
               </div>
 
               <div>
-                <label className="block text-slate-400 mb-1">Balls per Over</label>
+                <label className="block text-slate-500 font-semibold mb-1">Balls per Over</label>
                 <input
                   type="number"
                   min="2"
                   max="10"
                   value={rules.ballsPerOver}
                   onChange={(e) => setRules({ ...rules, ballsPerOver: Number(e.target.value) || 6 })}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-white font-mono"
+                  className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-mono font-semibold focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
                 />
               </div>
 
               <div>
-                <label className="block text-slate-400 mb-1">Players / Team</label>
+                <label className="block text-slate-500 font-semibold mb-1">Players / Team</label>
                 <input
                   type="number"
                   min="2"
                   max="20"
                   value={rules.playersPerTeam}
                   onChange={(e) => setRules({ ...rules, playersPerTeam: Number(e.target.value) || 6 })}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-white font-mono"
+                  className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-mono font-semibold focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
                 />
               </div>
 
               <div>
-                <label className="block text-slate-400 mb-1">Max Ov / Bowler</label>
+                <label className="block text-slate-500 font-semibold mb-1">Max Ov / Bowler</label>
                 <input
                   type="number"
                   min="1"
                   max="250"
                   value={rules.maxOversPerBowler}
                   onChange={(e) => setRules({ ...rules, maxOversPerBowler: Number(e.target.value) || 1 })}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-white font-mono"
+                  className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-mono font-semibold focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
                 />
               </div>
             </div>
 
-            <div className="mt-3 pt-3 border-t border-slate-800 flex items-center justify-between">
-              <label className="flex items-center space-x-2 text-xs text-slate-300 cursor-pointer">
+            <div className="mt-3 pt-3 border-t border-slate-200/80 flex flex-wrap items-center justify-between gap-2">
+              <label className="flex items-center space-x-2 text-xs text-slate-700 cursor-pointer font-medium">
                 <input
                   type="checkbox"
                   checked={rules.lastManStanding}
                   onChange={(e) => setRules({ ...rules, lastManStanding: e.target.checked })}
-                  className="rounded bg-slate-800 border-slate-700 text-emerald-500 focus:ring-0 w-4 h-4"
+                  className="rounded bg-white border-slate-300 text-emerald-600 focus:ring-emerald-500/20 w-4 h-4"
                 />
                 <span>Enable <strong>Last-Man Standing</strong> (Solo batter till all out)</span>
               </label>
 
-              <label className="flex items-center space-x-2 text-xs text-slate-300 cursor-pointer">
+              <label className="flex items-center space-x-2 text-xs text-slate-700 cursor-pointer font-medium">
                 <input
                   type="checkbox"
                   checked={rules.reBallWide}
                   onChange={(e) => setRules({ ...rules, reBallWide: e.target.checked })}
-                  className="rounded bg-slate-800 border-slate-700 text-emerald-500 focus:ring-0 w-4 h-4"
+                  className="rounded bg-white border-slate-300 text-emerald-600 focus:ring-emerald-500/20 w-4 h-4"
                 />
                 <span>Re-ball on Wide / No-Ball</span>
               </label>
@@ -443,7 +443,7 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
           {/* Team Names */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">
                 Team A Name
               </label>
               <input
@@ -451,12 +451,12 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
                 required
                 value={teamAName}
                 onChange={(e) => setTeamAName(e.target.value)}
-                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-sm text-white font-medium focus:outline-none focus:border-emerald-500"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 font-bold focus:bg-white focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">
                 Team B Name
               </label>
               <input
@@ -464,29 +464,29 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
                 required
                 value={teamBName}
                 onChange={(e) => setTeamBName(e.target.value)}
-                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-sm text-white font-medium focus:outline-none focus:border-emerald-500"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 font-bold focus:bg-white focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
               />
             </div>
           </div>
 
           {/* Validation Error Alert */}
           {validationError && (
-            <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-xs text-red-400 font-medium flex items-center space-x-2">
+            <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700 font-medium flex items-center space-x-2">
               <span>⚠️</span>
               <span>{validationError}</span>
             </div>
           )}
 
           {/* Player Names & Squads Section */}
-          <div className="bg-slate-950/60 p-4 rounded-2xl border border-slate-800">
+          <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center space-x-2">
-                <Users className="w-4 h-4 text-emerald-400" />
-                <span className="text-xs font-semibold text-slate-200">
+                <Users className="w-4 h-4 text-emerald-600" />
+                <span className="text-xs font-bold text-slate-800">
                   Player Names & Rosters
                 </span>
               </div>
-              <span className="text-[11px] text-slate-400">
+              <span className="text-[11px] text-slate-500 font-medium">
                 {activePlayerTab === 'teamA' ? teamAPlayers.length : teamBPlayers.length} players listed
               </span>
             </div>
@@ -498,12 +498,12 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
                 onClick={() => setActivePlayerTab('teamA')}
                 className={`p-2.5 rounded-xl border text-xs font-bold transition-all flex items-center justify-center space-x-2 ${
                   activePlayerTab === 'teamA'
-                    ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500 shadow-md shadow-emerald-950/30'
-                    : 'bg-slate-800/80 text-slate-400 border-slate-700 hover:bg-slate-800 hover:text-slate-200'
+                    ? 'bg-white text-emerald-700 border-emerald-300 shadow-xs'
+                    : 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200/70'
                 }`}
               >
                 <span className="truncate">🏏 {teamAName}</span>
-                <span className="px-1.5 py-0.5 rounded-full bg-slate-800 text-[10px] text-slate-300">
+                <span className="px-1.5 py-0.5 rounded-full bg-slate-200 text-[10px] text-slate-700 font-bold">
                   {teamAPlayers.length}
                 </span>
               </button>
@@ -512,37 +512,37 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
                 onClick={() => setActivePlayerTab('teamB')}
                 className={`p-2.5 rounded-xl border text-xs font-bold transition-all flex items-center justify-center space-x-2 ${
                   activePlayerTab === 'teamB'
-                    ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500 shadow-md shadow-emerald-950/30'
-                    : 'bg-slate-800/80 text-slate-400 border-slate-700 hover:bg-slate-800 hover:text-slate-200'
+                    ? 'bg-white text-emerald-700 border-emerald-300 shadow-xs'
+                    : 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200/70'
                 }`}
               >
                 <span className="truncate">⚾ {teamBName}</span>
-                <span className="px-1.5 py-0.5 rounded-full bg-slate-800 text-[10px] text-slate-300">
+                <span className="px-1.5 py-0.5 rounded-full bg-slate-200 text-[10px] text-slate-700 font-bold">
                   {teamBPlayers.length}
                 </span>
               </button>
             </div>
 
             {/* Toolbar: Information & Fast Actions */}
-            <div className="flex flex-wrap items-center justify-between gap-2 mb-3 pb-2.5 border-b border-slate-800/80">
-              <div className="text-[11px] text-slate-400">
-                Opening batters: <span className="text-emerald-400 font-semibold">#1 (Striker)</span> &{' '}
-                <span className="text-teal-400 font-semibold">#2 (Non-Striker)</span>
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-3 pb-2.5 border-b border-slate-200">
+              <div className="text-[11px] text-slate-500">
+                Opening batters: <span className="text-emerald-700 font-bold">#1 (Striker)</span> &{' '}
+                <span className="text-teal-700 font-bold">#2 (Non-Striker)</span>
               </div>
               <div className="flex items-center space-x-2">
                 <button
                   type="button"
                   onClick={() => setBulkPasteOpen(!bulkPasteOpen)}
-                  className="flex items-center space-x-1 px-2.5 py-1 text-[11px] text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg transition-colors"
+                  className="flex items-center space-x-1 px-2.5 py-1 text-[11px] font-semibold text-slate-700 hover:text-slate-900 bg-white hover:bg-slate-100 border border-slate-200 rounded-lg transition-colors shadow-xs"
                   title="Paste a comma or newline separated list of names"
                 >
-                  <ClipboardPaste className="w-3.5 h-3.5 text-emerald-400" />
+                  <ClipboardPaste className="w-3.5 h-3.5 text-emerald-600" />
                   <span>Paste List</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => handleResetToDefaults(activePlayerTab)}
-                  className="flex items-center space-x-1 px-2.5 py-1 text-[11px] text-slate-400 hover:text-slate-200 bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 rounded-lg transition-colors"
+                  className="flex items-center space-x-1 px-2.5 py-1 text-[11px] font-semibold text-slate-500 hover:text-slate-800 bg-white hover:bg-slate-100 border border-slate-200 rounded-lg transition-colors shadow-xs"
                   title="Reset team players to defaults"
                 >
                   <RotateCcw className="w-3 h-3" />
@@ -553,15 +553,15 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
 
             {/* Bulk Paste Box if open */}
             {bulkPasteOpen && (
-              <div className="mb-3 p-3 bg-slate-900 border border-emerald-500/40 rounded-xl space-y-2">
-                <div className="flex items-center justify-between text-xs text-slate-300">
-                  <span className="font-semibold">
+              <div className="mb-3 p-3 bg-white border border-emerald-300 rounded-xl space-y-2 shadow-xs">
+                <div className="flex items-center justify-between text-xs text-slate-700 font-semibold">
+                  <span>
                     Paste player names for {activePlayerTab === 'teamA' ? teamAName : teamBName}:
                   </span>
                   <button
                     type="button"
                     onClick={() => setBulkPasteOpen(false)}
-                    className="text-slate-400 hover:text-white text-xs"
+                    className="text-slate-400 hover:text-slate-700 text-xs"
                   >
                     Cancel
                   </button>
@@ -571,13 +571,13 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
                   placeholder="Paste comma-separated or line-separated names, e.g.:&#10;Liam, Noah, Oliver, James, Elijah, William"
                   value={bulkPasteInput}
                   onChange={(e) => setBulkPasteInput(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
                 />
                 <div className="flex justify-end">
                   <button
                     type="button"
                     onClick={() => handleBulkApply(activePlayerTab)}
-                    className="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold"
+                    className="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold shadow-xs"
                   >
                     Apply Names
                   </button>
@@ -590,7 +590,7 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
               {(activePlayerTab === 'teamA' ? teamAPlayers : teamBPlayers).map((player, idx) => (
                 <div
                   key={`${activePlayerTab}_${idx}`}
-                  className="flex items-center space-x-2 bg-slate-900/90 border border-slate-800/80 rounded-xl px-2.5 py-1.5 focus-within:border-emerald-500/60 transition-colors"
+                  className="flex items-center space-x-2 bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 focus-within:border-emerald-500 shadow-xs transition-colors"
                 >
                   <span className="w-6 text-center text-xs font-mono font-bold text-slate-400">
                     #{idx + 1}
@@ -600,15 +600,15 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
                     value={player}
                     onChange={(e) => handleUpdatePlayer(activePlayerTab, idx, e.target.value)}
                     placeholder={`Player ${idx + 1} Name`}
-                    className="flex-1 bg-transparent text-xs text-white font-medium focus:outline-none"
+                    className="flex-1 bg-transparent text-xs text-slate-900 font-semibold focus:outline-none"
                   />
                   {idx === 0 && (
-                    <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded border border-emerald-500/30 whitespace-nowrap">
+                    <span className="text-[10px] bg-emerald-50 text-emerald-700 font-bold px-1.5 py-0.5 rounded border border-emerald-200 whitespace-nowrap">
                       Striker
                     </span>
                   )}
                   {idx === 1 && (
-                    <span className="text-[10px] bg-teal-500/20 text-teal-300 px-1.5 py-0.5 rounded border border-teal-500/30 whitespace-nowrap">
+                    <span className="text-[10px] bg-teal-50 text-teal-700 font-bold px-1.5 py-0.5 rounded border border-teal-200 whitespace-nowrap">
                       Non-Striker
                     </span>
                   )}
@@ -616,7 +616,7 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
                     type="button"
                     onClick={() => handleRemovePlayer(activePlayerTab, idx)}
                     disabled={(activePlayerTab === 'teamA' ? teamAPlayers : teamBPlayers).length <= 2}
-                    className="p-1 text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-30 disabled:hover:text-slate-500 disabled:hover:bg-transparent"
+                    className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors disabled:opacity-30 disabled:hover:text-slate-400 disabled:hover:bg-transparent"
                     title="Remove player"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -626,7 +626,7 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
             </div>
 
             {/* Add Player Input Row */}
-            <div className="mt-3 pt-3 border-t border-slate-800 flex items-center space-x-2">
+            <div className="mt-3 pt-3 border-t border-slate-200 flex items-center space-x-2">
               <div className="relative flex-1">
                 <input
                   type="text"
@@ -639,13 +639,13 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
                       handleAddPlayer(activePlayerTab);
                     }
                   }}
-                  className="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                  className="w-full bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
                 />
               </div>
               <button
                 type="button"
                 onClick={() => handleAddPlayer(activePlayerTab)}
-                className="flex items-center space-x-1.5 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-emerald-950/30"
+                className="flex items-center space-x-1.5 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white rounded-xl text-xs font-bold transition-all shadow-sm shadow-emerald-600/20"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>Add Player</span>
@@ -654,21 +654,21 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
           </div>
 
           {/* Toss Decision */}
-          <div className="bg-slate-950/60 p-4 rounded-2xl border border-slate-800">
-            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2.5">
+          <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2.5">
               🪙 Toss Result
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
               <div>
-                <span className="block text-slate-400 mb-1">Toss Winner:</span>
+                <span className="block text-slate-500 font-semibold mb-1">Toss Winner:</span>
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
                     onClick={() => setTossWinner('teamA')}
-                    className={`p-2 rounded-xl border font-semibold ${
+                    className={`p-2 rounded-xl border font-bold transition-all ${
                       tossWinner === 'teamA'
-                        ? 'bg-emerald-500 text-slate-950 border-emerald-400'
-                        : 'bg-slate-800 text-slate-300 border-slate-700'
+                        ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
+                        : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
                     }`}
                   >
                     {teamAName}
@@ -676,10 +676,10 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
                   <button
                     type="button"
                     onClick={() => setTossWinner('teamB')}
-                    className={`p-2 rounded-xl border font-semibold ${
+                    className={`p-2 rounded-xl border font-bold transition-all ${
                       tossWinner === 'teamB'
-                        ? 'bg-emerald-500 text-slate-950 border-emerald-400'
-                        : 'bg-slate-800 text-slate-300 border-slate-700'
+                        ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
+                        : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
                     }`}
                   >
                     {teamBName}
@@ -688,15 +688,15 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
               </div>
 
               <div>
-                <span className="block text-slate-400 mb-1">Elected To:</span>
+                <span className="block text-slate-500 font-semibold mb-1">Elected To:</span>
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
                     onClick={() => setTossDecision('BAT')}
-                    className={`p-2 rounded-xl border font-semibold ${
+                    className={`p-2 rounded-xl border font-bold transition-all ${
                       tossDecision === 'BAT'
-                        ? 'bg-emerald-500 text-slate-950 border-emerald-400'
-                        : 'bg-slate-800 text-slate-300 border-slate-700'
+                        ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
+                        : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
                     }`}
                   >
                     🏏 Bat First
@@ -704,10 +704,10 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
                   <button
                     type="button"
                     onClick={() => setTossDecision('BOWL')}
-                    className={`p-2 rounded-xl border font-semibold ${
+                    className={`p-2 rounded-xl border font-bold transition-all ${
                       tossDecision === 'BOWL'
-                        ? 'bg-emerald-500 text-slate-950 border-emerald-400'
-                        : 'bg-slate-800 text-slate-300 border-slate-700'
+                        ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
+                        : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
                     }`}
                   >
                     ⚾ Bowl First
@@ -722,15 +722,15 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-750 border border-slate-700 transition-colors"
+              className="px-5 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="flex items-center space-x-2 px-6 py-2.5 rounded-xl text-sm font-bold text-slate-950 bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 shadow-lg shadow-emerald-950/50 transition-all active:scale-95"
+              className="flex items-center space-x-2 px-6 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 shadow-md shadow-emerald-600/25 transition-all active:scale-95"
             >
-              <Play className="w-4 h-4 fill-slate-950" />
+              <Play className="w-4 h-4 fill-white" />
               <span>Start Match</span>
             </button>
           </div>

@@ -40,20 +40,20 @@ export const BatterSelectModal: React.FC<BatterSelectModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-      <div className="relative w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-6 text-slate-100">
-        <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-800">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+      <div className="relative w-full max-w-md bg-white border border-slate-200 rounded-3xl shadow-2xl p-6 text-slate-900">
+        <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-100">
           <div>
-            <h3 className="font-display font-bold text-lg text-white">
+            <h3 className="font-display font-bold text-lg text-slate-900">
               Select {targetEnd === 'striker' ? 'Striker' : 'Non-Striker'}
             </h3>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-500">
               Select an existing player or add a new player to bat
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
+            className="p-1 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -80,42 +80,42 @@ export const BatterSelectModal: React.FC<BatterSelectModalProps> = ({
                   onSelectBatter(player);
                   onClose();
                 }}
-                className={`w-full p-3 rounded-xl border flex items-center justify-between transition-all ${
+                className={`w-full p-3 rounded-2xl border flex items-center justify-between transition-all ${
                   isAlreadyBatting
-                    ? 'bg-emerald-950/40 border-emerald-500/50'
+                    ? 'bg-emerald-50 border-emerald-300 shadow-xs'
                     : isDisabled
-                    ? 'opacity-40 bg-slate-950 border-slate-800 cursor-not-allowed'
-                    : 'bg-slate-800/70 border-slate-700 hover:bg-slate-750 hover:border-emerald-500/40'
+                    ? 'opacity-40 bg-slate-50 border-slate-200 cursor-not-allowed'
+                    : 'bg-slate-50/80 border-slate-200 hover:bg-slate-100 hover:border-emerald-300 text-slate-900 shadow-xs'
                 }`}
               >
                 <div className="text-left">
                   <div className="flex items-center space-x-2">
-                    <span className="text-sm font-bold text-white">{player}</span>
+                    <span className="text-sm font-bold text-slate-900">{player}</span>
                     {isAlreadyBatting && (
-                      <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded border border-emerald-500/30">
+                      <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-md font-semibold border border-emerald-200">
                         Current End
                       </span>
                     )}
                     {isOtherBatting && (
-                      <span className="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded">
+                      <span className="text-[10px] bg-slate-200 text-slate-600 px-2 py-0.5 rounded-md font-medium">
                         Other End
                       </span>
                     )}
                     {isOut && (
-                      <span className="text-[10px] bg-red-500/20 text-red-400 px-1.5 py-0.5 rounded border border-red-500/30">
+                      <span className="text-[10px] bg-rose-100 text-rose-700 px-2 py-0.5 rounded-md font-semibold border border-rose-200">
                         Out
                       </span>
                     )}
                   </div>
                   {stats && (
-                    <div className="text-[11px] text-slate-400 font-mono mt-0.5">
+                    <div className="text-[11px] text-slate-500 font-mono mt-0.5">
                       {stats.runs} runs ({stats.balls}b) • {stats.fours} 4s • {stats.sixes} 6s
                     </div>
                   )}
                 </div>
 
                 {!isDisabled && (
-                  <div className="p-1.5 rounded-lg bg-emerald-500/20 text-emerald-400">
+                  <div className="p-1.5 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200">
                     <Check className="w-4 h-4" />
                   </div>
                 )}
@@ -125,8 +125,8 @@ export const BatterSelectModal: React.FC<BatterSelectModalProps> = ({
         </div>
 
         {/* Quick Add New Player to Batting Team */}
-        <div className="mt-4 pt-3 border-t border-slate-800">
-          <label className="block text-xs font-semibold text-slate-400 mb-1.5">
+        <div className="mt-4 pt-3 border-t border-slate-100">
+          <label className="block text-xs font-bold text-slate-500 mb-1.5">
             + Add New Player to Bat
           </label>
           <div className="flex space-x-2">
@@ -141,12 +141,12 @@ export const BatterSelectModal: React.FC<BatterSelectModalProps> = ({
                   handleAddNew();
                 }
               }}
-              className="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+              className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
             />
             <button
               type="button"
               onClick={handleAddNew}
-              className="flex items-center space-x-1 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold rounded-xl text-xs transition-all"
+              className="flex items-center space-x-1 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold rounded-xl text-xs transition-all shadow-sm shadow-emerald-600/20"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Add & Bat</span>

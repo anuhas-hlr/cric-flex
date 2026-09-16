@@ -63,30 +63,30 @@ export const MatchesHistory: React.FC<MatchesHistoryProps> = ({
   return (
     <div className="space-y-4">
       {/* Header & Filter Controls */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-900/80 p-4 rounded-2xl border border-slate-800">
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
         <div className="flex items-center space-x-3">
-          <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+          <div className="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center">
             <History className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="font-display font-bold text-lg text-white">
+            <h2 className="font-display font-bold text-lg text-slate-900">
               Matches Archive
             </h2>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-500">
               All matches stored securely in your browser's IndexedDB
             </p>
           </div>
         </div>
 
-        <div className="flex items-center space-x-1.5 bg-slate-950/60 p-1 rounded-xl border border-slate-800">
+        <div className="flex items-center space-x-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
           {(['ALL', 'LIVE', 'COMPLETED'] as const).map((mode) => (
             <button
               key={mode}
               onClick={() => setFilter(mode)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 filter === mode
-                  ? 'bg-emerald-500 text-slate-950 font-bold'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'bg-white text-emerald-700 font-bold shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               {mode}
@@ -97,9 +97,9 @@ export const MatchesHistory: React.FC<MatchesHistoryProps> = ({
 
       {/* Matches List */}
       {filteredMatches.length === 0 ? (
-        <div className="text-center py-12 bg-slate-900/40 rounded-3xl border border-slate-800 p-6">
-          <History className="w-10 h-10 text-slate-600 mx-auto mb-2" />
-          <p className="text-xs text-slate-400">No matches found in this category.</p>
+        <div className="text-center py-12 bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
+          <History className="w-10 h-10 text-slate-400 mx-auto mb-2" />
+          <p className="text-xs text-slate-500 font-medium">No matches found in this category.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -113,7 +113,7 @@ export const MatchesHistory: React.FC<MatchesHistoryProps> = ({
             return (
               <div
                 key={match.id}
-                className="bg-slate-900/80 hover:bg-slate-850/90 rounded-2xl border border-slate-800 p-4 transition-all shadow-md flex flex-col justify-between"
+                className="bg-white hover:border-emerald-300 rounded-2xl border border-slate-200 p-4 transition-all shadow-sm flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between text-xs mb-3">
@@ -121,18 +121,18 @@ export const MatchesHistory: React.FC<MatchesHistoryProps> = ({
                       <span
                         className={`px-2 py-0.5 rounded-md font-semibold text-[10px] ${
                           match.status === 'LIVE'
-                            ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 animate-pulse'
-                            : 'bg-slate-800 text-slate-400'
+                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 animate-pulse'
+                            : 'bg-slate-100 text-slate-600 border border-slate-200'
                         }`}
                       >
                         {match.status}
                       </span>
-                      <span className="text-slate-400 text-[11px] font-mono">
+                      <span className="text-slate-500 text-[11px] font-mono">
                         {match.matchType} ({match.rules.ballsPerOver} b/ov)
                       </span>
                     </div>
 
-                    <span className="text-slate-500 text-[11px] flex items-center space-x-1">
+                    <span className="text-slate-400 text-[11px] flex items-center space-x-1">
                       <Calendar className="w-3 h-3" />
                       <span>{dateStr}</span>
                     </span>
@@ -143,31 +143,31 @@ export const MatchesHistory: React.FC<MatchesHistoryProps> = ({
                     {match.matchType === 'TEST' ? (
                       <>
                         <div className="flex items-center justify-between text-sm">
-                          <span className="font-bold text-white">
+                          <span className="font-bold text-slate-800">
                             {match.innings1.battingTeam}
                           </span>
-                          <span className="font-mono text-emerald-400 font-bold text-xs sm:text-sm">
+                          <span className="font-mono text-emerald-600 font-bold text-xs sm:text-sm">
                             {match.innings1.totalRuns}/{match.innings1.wicketsLost}
                             {match.innings3 ? (
-                              <span className="text-slate-300"> & {match.innings3.totalRuns}/{match.innings3.wicketsLost}</span>
+                              <span className="text-slate-500"> & {match.innings3.totalRuns}/{match.innings3.wicketsLost}</span>
                             ) : null}
                           </span>
                         </div>
 
                         <div className="flex items-center justify-between text-sm">
-                          <span className="font-bold text-white">
+                          <span className="font-bold text-slate-800">
                             {match.innings2 ? match.innings2.battingTeam : (match.teamA.name === match.innings1.battingTeam ? match.teamB.name : match.teamA.name)}
                           </span>
-                          <span className="font-mono text-emerald-400 font-bold text-xs sm:text-sm">
+                          <span className="font-mono text-emerald-600 font-bold text-xs sm:text-sm">
                             {match.innings2 ? (
                               <>
                                 {match.innings2.totalRuns}/{match.innings2.wicketsLost}
                                 {match.innings4 ? (
-                                  <span className="text-slate-300"> & {match.innings4.totalRuns}/{match.innings4.wicketsLost}</span>
+                                  <span className="text-slate-500"> & {match.innings4.totalRuns}/{match.innings4.wicketsLost}</span>
                                 ) : null}
                               </>
                             ) : (
-                              <span className="text-slate-500 italic text-xs font-normal">Yet to bat</span>
+                              <span className="text-slate-400 italic text-xs font-normal">Yet to bat</span>
                             )}
                           </span>
                         </div>
@@ -175,12 +175,12 @@ export const MatchesHistory: React.FC<MatchesHistoryProps> = ({
                     ) : (
                       <>
                         <div className="flex items-center justify-between text-sm">
-                          <span className="font-bold text-white">
+                          <span className="font-bold text-slate-800">
                             {match.innings1.battingTeam}
                           </span>
-                          <span className="font-mono text-emerald-400 font-bold">
+                          <span className="font-mono text-emerald-600 font-bold">
                             {match.innings1.totalRuns}/{match.innings1.wicketsLost}{' '}
-                            <span className="text-slate-500 text-xs font-normal">
+                            <span className="text-slate-400 text-xs font-normal">
                               ({formatOvers(match.innings1.legalBallsBowled, match.rules.ballsPerOver)} ov)
                             </span>
                           </span>
@@ -188,18 +188,18 @@ export const MatchesHistory: React.FC<MatchesHistoryProps> = ({
 
                         {match.innings2 ? (
                           <div className="flex items-center justify-between text-sm">
-                            <span className="font-bold text-white">
+                            <span className="font-bold text-slate-800">
                               {match.innings2.battingTeam}
                             </span>
-                            <span className="font-mono text-emerald-400 font-bold">
+                            <span className="font-mono text-emerald-600 font-bold">
                               {match.innings2.totalRuns}/{match.innings2.wicketsLost}{' '}
-                              <span className="text-slate-500 text-xs font-normal">
+                              <span className="text-slate-400 text-xs font-normal">
                                 ({formatOvers(match.innings2.legalBallsBowled, match.rules.ballsPerOver)} ov)
                               </span>
                             </span>
                           </div>
                         ) : (
-                          <div className="text-xs text-slate-500 italic">
+                          <div className="text-xs text-slate-400 italic">
                             {match.teamA.name === match.innings1.battingTeam ? match.teamB.name : match.teamA.name} yet to bat
                           </div>
                         )}
@@ -209,14 +209,14 @@ export const MatchesHistory: React.FC<MatchesHistoryProps> = ({
 
                   {/* Result or equation */}
                   {match.resultText && (
-                    <div className="text-xs text-emerald-300 font-semibold mb-3 flex items-center space-x-1">
+                    <div className="text-xs text-emerald-700 font-semibold mb-3 flex items-center space-x-1">
                       <span>🏆 {match.resultText}</span>
                     </div>
                   )}
 
                   {match.aiSummary && (
-                    <div className="text-[11px] text-amber-300/90 bg-amber-950/20 p-2 rounded-lg border border-amber-900/30 mb-3 flex items-center space-x-1.5">
-                      <Sparkles className="w-3.5 h-3.5 flex-shrink-0 text-amber-400" />
+                    <div className="text-[11px] text-amber-800 bg-amber-50 p-2 rounded-lg border border-amber-200 mb-3 flex items-center space-x-1.5">
+                      <Sparkles className="w-3.5 h-3.5 flex-shrink-0 text-amber-600" />
                       <span className="truncate">
                         POTM: <strong>{match.aiSummary.potm}</strong>
                       </span>
@@ -225,18 +225,18 @@ export const MatchesHistory: React.FC<MatchesHistoryProps> = ({
                 </div>
 
                 {/* Card Action Buttons */}
-                <div className="pt-3 border-t border-slate-800 flex items-center justify-between text-xs">
+                <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
                   <div className="flex items-center space-x-1.5">
                     <button
                       onClick={() => handleExportJSON(match)}
-                      className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
                       title="Export match JSON"
                     >
                       <Download className="w-3.5 h-3.5" />
                     </button>
                     <button
                       onClick={() => handleDelete(match.id)}
-                      className="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-slate-800 transition-colors"
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
                       title="Delete match record"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -247,17 +247,17 @@ export const MatchesHistory: React.FC<MatchesHistoryProps> = ({
                     {match.status === 'LIVE' ? (
                       <button
                         onClick={() => onResumeMatch(match)}
-                        className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold transition-all shadow-sm"
+                        className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold transition-all shadow-sm shadow-emerald-600/30 cursor-pointer"
                       >
-                        <Play className="w-3.5 h-3.5 fill-slate-950" />
+                        <Play className="w-3.5 h-3.5 fill-white" />
                         <span>Resume</span>
                       </button>
                     ) : (
                       <button
                         onClick={() => onViewScorecard(match)}
-                        className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-200 border border-slate-700 font-medium transition-colors"
+                        className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 font-semibold transition-colors cursor-pointer"
                       >
-                        <FileText className="w-3.5 h-3.5 text-emerald-400" />
+                        <FileText className="w-3.5 h-3.5 text-emerald-600" />
                         <span>Scorecard</span>
                       </button>
                     )}

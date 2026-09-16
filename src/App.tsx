@@ -685,7 +685,7 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#080c14] text-slate-100 flex flex-col selection:bg-emerald-500 selection:text-slate-950 pb-20 md:pb-8">
+    <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col selection:bg-emerald-500 selection:text-white pb-20 md:pb-8">
       {/* Top Navigation */}
       <Navbar
         activeTab={activeTab}
@@ -762,14 +762,14 @@ export function App() {
               </div>
             ) : (
               /* No Active Match State */
-              <div className="text-center py-16 bg-slate-900/60 rounded-3xl border border-slate-800 p-8 shadow-xl max-w-2xl mx-auto my-8">
-                <div className="w-16 h-16 rounded-3xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center text-3xl mx-auto mb-4 shadow-xl shadow-emerald-950/50">
+              <div className="text-center py-16 bg-white rounded-3xl border border-slate-200/90 p-8 sm:p-12 shadow-xl shadow-slate-200/50 max-w-2xl mx-auto my-8">
+                <div className="w-16 h-16 rounded-3xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-3xl mx-auto mb-4 shadow-lg shadow-emerald-500/25">
                   🏏
                 </div>
-                <h2 className="font-display font-extrabold text-2xl sm:text-3xl text-white mb-2 tracking-tight">
+                <h2 className="font-display font-extrabold text-2xl sm:text-3xl text-slate-900 mb-2 tracking-tight">
                   Welcome to CricFlex
                 </h2>
-                <p className="text-xs sm:text-sm text-slate-300 max-w-md mx-auto mb-6 leading-relaxed">
+                <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto mb-6 leading-relaxed">
                   The zero-database, offline-first cricket scorer built for gully tournaments, box cricket, and official matches.
                 </p>
 
@@ -779,17 +779,17 @@ export function App() {
                       setTournamentMatchContext({});
                       setIsMatchSetupOpen(true);
                     }}
-                    className="flex items-center space-x-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-extrabold text-sm shadow-xl shadow-emerald-950/60 transition-all active:scale-95"
+                    className="flex items-center space-x-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-sm shadow-md shadow-emerald-600/25 transition-all active:scale-95"
                   >
-                    <Play className="w-4 h-4 fill-slate-950" />
+                    <Play className="w-4 h-4 fill-white" />
                     <span>Start New Match</span>
                   </button>
 
                   <button
                     onClick={() => setActiveTab('settings')}
-                    className="flex items-center space-x-2 px-5 py-3 rounded-2xl bg-slate-800 hover:bg-slate-750 text-slate-200 border border-slate-700 font-semibold text-sm transition-all"
+                    className="flex items-center space-x-2 px-5 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 font-semibold text-sm transition-all"
                   >
-                    <Sparkles className="w-4 h-4 text-emerald-400" />
+                    <Sparkles className="w-4 h-4 text-emerald-600" />
                     <span>Try Sample Demo Match</span>
                   </button>
                 </div>
@@ -805,7 +805,7 @@ export function App() {
               <div className="space-y-4">
                 <button
                   onClick={() => setScorecardViewMatch(null)}
-                  className="flex items-center space-x-1.5 text-xs text-emerald-400 hover:underline font-semibold"
+                  className="flex items-center space-x-1.5 text-xs text-emerald-600 hover:text-emerald-700 hover:underline font-semibold"
                 >
                   ← Back to Matches History
                 </button>
@@ -839,7 +839,7 @@ export function App() {
               <div className="space-y-4">
                 <button
                   onClick={() => setScorecardViewMatch(null)}
-                  className="flex items-center space-x-1.5 text-xs text-emerald-400 hover:underline font-semibold"
+                  className="flex items-center space-x-1.5 text-xs text-emerald-600 hover:text-emerald-700 hover:underline font-semibold"
                 >
                   ← Back to Tournament
                 </button>

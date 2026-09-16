@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import type { MatchRecord, InningsState } from '../../types/cricket';
-import { formatOvers } from '../../engine/scoringEngine';
+import { formatOvers, getBattingOrder } from '../../engine/scoringEngine';
 
 interface FullScorecardProps {
   match: MatchRecord;
@@ -34,7 +34,29 @@ export const FullScorecard: React.FC<FullScorecardProps> = ({ match }) => {
   }
 
   const { rules, matchType } = match;
-  const battersList = Object.values(currentInnings.batters);
+
+  // Order batters by exact chronological entrance (who bat first on top)
+  const orderedNames = getBattingOrder(currentInnings);
+  const allBatters = orderedNames
+    .map((name) => currentInnings.batters[name])
+    .filter(Boolean);
+
+  // Group who actually batted vs Did Not Bat (DNB)
+  const battedList = allBatters.filter((batter) => {
+    const isCurrentlyBatting =
+      !batter.isOut &&
+      (batter.name === currentInnings.strikerName ||
+        batter.name === currentInnings.nonStrikerName);
+    return batter.balls > 0 || batter.runs > 0 || batter.isOut || isCurrentlyBatting;
+  });
+
+  const dnbList = allBatters.filter(
+    (batter) => !battedList.some((b) => b.name === batter.name)
+  );
+
+  // Batted players first in order of arrival, followed by DNB players at the bottom
+  const battersList = [...battedList, ...dnbList];
+
   const bowlersList = Object.values(currentInnings.bowlers).filter(
     (bw) => bw.overs > 0 || bw.balls > 0
   );
@@ -117,33 +139,46 @@ export const FullScorecard: React.FC<FullScorecardProps> = ({ match }) => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 font-mono">
-              {battersList.map((batter) => {
+              {battersList.map((batter, idx) => {
                 const isCurrentlyBatting =
                   !batter.isOut &&
                   (batter.name === currentInnings.strikerName ||
                     batter.name === currentInnings.nonStrikerName);
 
+                const hasBatted =
+                  batter.balls > 0 ||
+                  batter.runs > 0 ||
+                  batter.isOut ||
+                  isCurrentlyBatting;
+
                 return (
                   <tr
                     key={batter.name}
                     className={`hover:bg-slate-50/80 transition-colors ${
-                      isCurrentlyBatting ? 'bg-emerald-50/50' : ''
+                      isCurrentlyBatting
+                        ? 'bg-emerald-50/50 font-bold'
+                        : !hasBatted
+                        ? 'opacity-70 bg-slate-50/30'
+                        : ''
                     }`}
                   >
                     <td className="py-2.5 px-3 font-sans font-bold text-slate-900 flex items-center space-x-1.5">
+                      <span className="text-[10px] font-mono text-slate-400 w-4 font-normal">
+                        {idx + 1}
+                      </span>
                       <span>{batter.name}</span>
                       {isCurrentlyBatting && (
                         <span className="text-[10px] text-emerald-600 font-bold font-mono">🏏*</span>
                       )}
                     </td>
-                    <td className="py-2.5 px-3 font-sans text-slate-500 text-[11px]">
+                    <td className={`py-2.5 px-3 font-sans text-[11px] ${!hasBatted ? 'text-slate-400 italic' : 'text-slate-500'}`}>
                       {batter.isOut
                         ? batter.dismissalInfo || 'out'
                         : isCurrentlyBatting
                         ? 'not out'
                         : 'did not bat'}
                     </td>
-                    <td className="py-2.5 px-2 text-right font-black text-slate-900">
+                    <td className={`py-2.5 px-2 text-right ${!hasBatted ? 'text-slate-400 font-normal' : 'font-black text-slate-900'}`}>
                       {batter.runs}
                     </td>
                     <td className="py-2.5 px-2 text-right text-slate-500">{batter.balls}</td>
@@ -156,6 +191,23 @@ export const FullScorecard: React.FC<FullScorecardProps> = ({ match }) => {
             </tbody>
           </table>
         </div>
+
+        {/* Did Not Bat (DNB) Summary Section */}
+        {dnbList.length > 0 && (
+          <div className="mt-2.5 p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-wrap items-center gap-1.5 text-xs">
+            <span className="font-bold text-slate-500 text-[11px] uppercase tracking-wider mr-1">
+              Did Not Bat:
+            </span>
+            {dnbList.map((b) => (
+              <span
+                key={b.name}
+                className="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-700 font-semibold text-[11px] shadow-2xs"
+              >
+                {b.name}
+              </span>
+            ))}
+          </div>
+        )}
 
         {/* Extras & Total Summary */}
         <div className="mt-3 p-3.5 rounded-2xl bg-slate-50 border border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs">

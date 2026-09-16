@@ -5,6 +5,7 @@ import type {
   ExtraType,
   DismissalType,
   InningsState,
+  BallEvent,
 } from './types/cricket';
 import { db } from './db/cricflexDb';
 import {
@@ -456,10 +457,14 @@ export function App() {
   const handleSelectBatter = async (playerName: string) => {
     if (!activeMatch || !currentInnings) return;
 
+    const currentBattingOrder = currentInnings.battingOrder || [];
     const updatedInnings: InningsState = {
       ...currentInnings,
       strikerName: targetBatterEnd === 'striker' ? playerName : currentInnings.strikerName,
       nonStrikerName: targetBatterEnd === 'nonStriker' ? playerName : currentInnings.nonStrikerName,
+      battingOrder: currentBattingOrder.includes(playerName)
+        ? currentBattingOrder
+        : [...currentBattingOrder, playerName],
     };
 
     const updatedMatch = updateMatchWithInnings(activeMatch, updatedInnings);
@@ -478,10 +483,14 @@ export function App() {
       ? targetTeam.players
       : [...targetTeam.players, trimmed];
 
+    const currentBattingOrder = currentInnings.battingOrder || [];
     const updatedInnings: InningsState = {
       ...currentInnings,
       strikerName: targetBatterEnd === 'striker' ? trimmed : currentInnings.strikerName,
       nonStrikerName: targetBatterEnd === 'nonStriker' ? trimmed : currentInnings.nonStrikerName,
+      battingOrder: currentBattingOrder.includes(trimmed)
+        ? currentBattingOrder
+        : [...currentBattingOrder, trimmed],
       batters: {
         ...currentInnings.batters,
         ...(currentInnings.batters[trimmed]
@@ -622,7 +631,7 @@ export function App() {
     await persistMatch(updatedMatch);
   };
 
-  // Rename player during live match from Squad Manager
+  // Rename player during live match from Squad Manager or quick rename
   const handleRenamePlayerInMatch = async (teamKey: 'teamA' | 'teamB', oldName: string, newName: string) => {
     if (!activeMatch || !newName.trim() || oldName === newName.trim()) return;
     const trimmed = newName.trim();
@@ -644,6 +653,26 @@ export function App() {
         delete newBowlers[oldName];
       }
 
+      const newFallOfWickets = (inn.fallOfWickets || []).map((fow) => ({
+        ...fow,
+        playerOut: fow.playerOut === oldName ? trimmed : fow.playerOut,
+      }));
+
+      const renameBall = (b: BallEvent): BallEvent => ({
+        ...b,
+        striker: b.striker === oldName ? trimmed : b.striker,
+        nonStriker: b.nonStriker === oldName ? trimmed : b.nonStriker,
+        bowler: b.bowler === oldName ? trimmed : b.bowler,
+        wicket: b.wicket
+          ? {
+              ...b.wicket,
+              playerOut: b.wicket.playerOut === oldName ? trimmed : b.wicket.playerOut,
+              bowlerName: b.wicket.bowlerName === oldName ? trimmed : b.wicket.bowlerName,
+              fielderName: b.wicket.fielderName === oldName ? trimmed : b.wicket.fielderName,
+            }
+          : undefined,
+      });
+
       return {
         ...inn,
         strikerName: inn.strikerName === oldName ? trimmed : inn.strikerName,
@@ -651,6 +680,10 @@ export function App() {
         currentBowlerName: inn.currentBowlerName === oldName ? trimmed : inn.currentBowlerName,
         batters: newBatters,
         bowlers: newBowlers,
+        fallOfWickets: newFallOfWickets,
+        allBalls: inn.allBalls ? inn.allBalls.map(renameBall) : inn.allBalls,
+        currentOverBalls: inn.currentOverBalls ? inn.currentOverBalls.map(renameBall) : inn.currentOverBalls,
+        battingOrder: inn.battingOrder ? inn.battingOrder.map((p) => (p === oldName ? trimmed : p)) : undefined,
       };
     };
 
@@ -732,6 +765,9 @@ export function App() {
                         setIsBatterModalOpen(true);
                       }}
                       onOpenSquads={() => setIsSquadModalOpen(true)}
+                      onRenamePlayer={handleRenamePlayerInMatch}
+                      battingTeamKey={currentInnings.battingTeam === activeMatch.teamA.name ? 'teamA' : 'teamB'}
+                      bowlingTeamKey={currentInnings.bowlingTeam === activeMatch.teamA.name ? 'teamA' : 'teamB'}
                     />
 
                     {/* Ball-by-ball timeline of current over */}
@@ -749,6 +785,7 @@ export function App() {
                       onUndo={handleUndo}
                       onSwapStrike={handleSwapStrike}
                       onEndInningsManual={handleEndInningsManual}
+                      onOpenSquads={() => setIsSquadModalOpen(true)}
                       canUndo={(activeMatch.undoStack?.length || 0) > 0}
                       isCompleted={currentInnings.isCompleted}
                     />
@@ -883,12 +920,16 @@ export function App() {
       {/* 1. New Match Setup Wizard */}
       <MatchSetupModal
         isOpen={isMatchSetupOpen}
-        onClose={() => setIsMatchSetupOpen(false)}
+        onClose={() => {
+          setTournamentMatchContext({});
+          setIsMatchSetupOpen(false);
+        }}
         tournamentId={tournamentMatchContext.tournamentId}
         defaultTeamA={tournamentMatchContext.teamA}
         defaultTeamB={tournamentMatchContext.teamB}
         tournamentRules={tournamentMatchContext.rules}
         onStartMatch={(newMatch) => {
+          setTournamentMatchContext({});
           persistMatch(newMatch);
           setActiveMatch(newMatch);
           setActiveTab('scorer');

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import type { MatchType, MatchRules, MatchRecord } from '../../types/cricket';
 import { DEFAULT_RULES } from '../../db/cricflexDb';
 import { createInitialInnings } from '../../engine/scoringEngine';
-import { X, Play, Sliders, Users, Trash2, ClipboardPaste, RotateCcw, Plus } from 'lucide-react';
+import { X, Play, Sliders, Users, Trash2, ClipboardPaste, Plus, ChevronUp, ChevronDown } from 'lucide-react';
 
 interface MatchSetupModalProps {
   isOpen: boolean;
@@ -26,9 +26,10 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
   const [matchType, setMatchType] = useState<MatchType>('BOX_GULLY');
   const [rules, setRules] = useState<MatchRules>({ ...DEFAULT_RULES.BOX_GULLY });
 
-  const [teamAName, setTeamAName] = useState<string>(defaultTeamA || 'Royal Strikers');
-  const [teamBName, setTeamBName] = useState<string>(defaultTeamB || 'Turf Warriors');
+  const [teamAName, setTeamAName] = useState<string>(defaultTeamA || 'Team Alpha');
+  const [teamBName, setTeamBName] = useState<string>(defaultTeamB || 'Team Beta');
 
+  // NO DEFAULT PLAYERS: Users must add player names themselves
   const [teamAPlayers, setTeamAPlayers] = useState<string[]>([]);
   const [teamBPlayers, setTeamBPlayers] = useState<string[]>([]);
 
@@ -41,53 +42,24 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
   const [tossWinner, setTossWinner] = useState<'teamA' | 'teamB'>('teamA');
   const [tossDecision, setTossDecision] = useState<'BAT' | 'BOWL'>('BAT');
 
-  // Re-sync team names and rules when opened with tournament context
+  // Reset or initialize state whenever modal opens
   React.useEffect(() => {
-    if (defaultTeamA) setTeamAName(defaultTeamA);
-    if (defaultTeamB) setTeamBName(defaultTeamB);
-    if (tournamentRules) setRules({ ...tournamentRules });
-  }, [defaultTeamA, defaultTeamB, tournamentRules, isOpen]);
+    if (isOpen) {
+      setValidationError(null);
+      setNewPlayerName('');
+      setBulkPasteOpen(false);
+      setBulkPasteInput('');
 
-  // Default player generator
-  const generateDefaultPlayers = (teamPrefix: string, count: number) => {
-    const names = [
-      ['Rohit S.', 'Virat K.', 'Surya Y.', 'Hardik P.', 'Rinku S.', 'Jasprit B.', 'Axar P.', 'Arshdeep S.', 'Kuldeep Y.', 'Sanju S.', 'Rishabh P.'],
-      ['Babar A.', 'Rizwan M.', 'Shaheen A.', 'Naseem S.', 'Haris R.', 'Fakhar Z.', 'Shadab K.', 'Iftikhar A.', 'Imad W.', 'Amir M.', 'Agha S.']
-    ];
-    const source = teamPrefix.includes('A') ? names[0] : names[1];
-    return Array.from({ length: count }, (_, i) => source[i] || `${teamPrefix} Player ${i + 1}`);
-  };
-
-  // Initialize players gracefully without overwriting custom names
-  React.useEffect(() => {
-    setTeamAPlayers((prev) => {
-      if (prev.length === 0) {
-        return generateDefaultPlayers('Team A', rules.playersPerTeam);
+      if (tournamentId && tournamentRules) {
+        if (defaultTeamA) setTeamAName(defaultTeamA);
+        if (defaultTeamB) setTeamBName(defaultTeamB);
+        setRules({ ...tournamentRules });
+      } else {
+        if (defaultTeamA) setTeamAName(defaultTeamA);
+        if (defaultTeamB) setTeamBName(defaultTeamB);
       }
-      if (prev.length < rules.playersPerTeam) {
-        const extra = Array.from(
-          { length: rules.playersPerTeam - prev.length },
-          (_, i) => `Team A Player ${prev.length + i + 1}`
-        );
-        return [...prev, ...extra];
-      }
-      return prev;
-    });
-
-    setTeamBPlayers((prev) => {
-      if (prev.length === 0) {
-        return generateDefaultPlayers('Team B', rules.playersPerTeam);
-      }
-      if (prev.length < rules.playersPerTeam) {
-        const extra = Array.from(
-          { length: rules.playersPerTeam - prev.length },
-          (_, i) => `Team B Player ${prev.length + i + 1}`
-        );
-        return [...prev, ...extra];
-      }
-      return prev;
-    });
-  }, [rules.playersPerTeam]);
+    }
+  }, [isOpen, tournamentId, defaultTeamA, defaultTeamB, tournamentRules]);
 
   // Handlers for player management
   const handleUpdatePlayer = (team: 'teamA' | 'teamB', index: number, value: string) => {
@@ -106,12 +78,21 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
   const handleAddPlayer = (team: 'teamA' | 'teamB', customName?: string) => {
     setValidationError(null);
     const targetName = (customName !== undefined ? customName : newPlayerName).trim();
-    const finalName = targetName || (team === 'teamA' ? `Team A Player ${teamAPlayers.length + 1}` : `Team B Player ${teamBPlayers.length + 1}`);
+    if (!targetName) {
+      setValidationError('Please enter a valid player name.');
+      return;
+    }
+
+    const currentList = team === 'teamA' ? teamAPlayers : teamBPlayers;
+    if (currentList.some((p) => p.toLowerCase() === targetName.toLowerCase())) {
+      setValidationError(`"${targetName}" is already in the squad.`);
+      return;
+    }
 
     if (team === 'teamA') {
-      setTeamAPlayers([...teamAPlayers, finalName]);
+      setTeamAPlayers([...teamAPlayers, targetName]);
     } else {
-      setTeamBPlayers([...teamBPlayers, finalName]);
+      setTeamBPlayers([...teamBPlayers, targetName]);
     }
     setNewPlayerName('');
   };
@@ -119,17 +100,30 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
   const handleRemovePlayer = (team: 'teamA' | 'teamB', index: number) => {
     setValidationError(null);
     if (team === 'teamA') {
-      if (teamAPlayers.length <= 2) {
-        setValidationError('Each team must have at least 2 players.');
-        return;
-      }
       setTeamAPlayers(teamAPlayers.filter((_, i) => i !== index));
     } else {
-      if (teamBPlayers.length <= 2) {
-        setValidationError('Each team must have at least 2 players.');
-        return;
-      }
       setTeamBPlayers(teamBPlayers.filter((_, i) => i !== index));
+    }
+  };
+
+  const handleClearPlayers = (team: 'teamA' | 'teamB') => {
+    setValidationError(null);
+    if (team === 'teamA') {
+      setTeamAPlayers([]);
+    } else {
+      setTeamBPlayers([]);
+    }
+  };
+
+  const handleMovePlayer = (team: 'teamA' | 'teamB', fromIndex: number, toIndex: number) => {
+    const list = team === 'teamA' ? [...teamAPlayers] : [...teamBPlayers];
+    if (toIndex < 0 || toIndex >= list.length) return;
+    const item = list.splice(fromIndex, 1)[0];
+    list.splice(toIndex, 0, item);
+    if (team === 'teamA') {
+      setTeamAPlayers(list);
+    } else {
+      setTeamBPlayers(list);
     }
   };
 
@@ -144,27 +138,28 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
       .map((s) => s.trim())
       .filter((s) => s.length > 0);
 
-    if (parsedNames.length < 2) {
-      setValidationError('Please enter at least 2 player names.');
+    if (parsedNames.length === 0) {
+      setValidationError('Please enter at least one valid player name.');
       return;
     }
 
+    // Deduplicate against existing and within input
+    const currentList = team === 'teamA' ? teamAPlayers : teamBPlayers;
+    const combined: string[] = [...currentList];
+
+    for (const name of parsedNames) {
+      if (!combined.some((p) => p.toLowerCase() === name.toLowerCase())) {
+        combined.push(name);
+      }
+    }
+
     if (team === 'teamA') {
-      setTeamAPlayers(parsedNames);
+      setTeamAPlayers(combined);
     } else {
-      setTeamBPlayers(parsedNames);
+      setTeamBPlayers(combined);
     }
     setBulkPasteInput('');
     setBulkPasteOpen(false);
-  };
-
-  const handleResetToDefaults = (team: 'teamA' | 'teamB') => {
-    setValidationError(null);
-    if (team === 'teamA') {
-      setTeamAPlayers(generateDefaultPlayers('Team A', rules.playersPerTeam));
-    } else {
-      setTeamBPlayers(generateDefaultPlayers('Team B', rules.playersPerTeam));
-    }
   };
 
   if (!isOpen) return null;
@@ -182,16 +177,18 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
     e.preventDefault();
     setValidationError(null);
 
-    // Clean and validate players
-    const cleanedTeamA = teamAPlayers.map((p, i) => p.trim() || `Player ${i + 1}`);
-    const cleanedTeamB = teamBPlayers.map((p, i) => p.trim() || `Player ${i + 1}`);
+    // Clean and validate players - NO DEFAULT NAMES PERMITTED
+    const cleanedTeamA = teamAPlayers.map((p) => p.trim()).filter((p) => p.length > 0);
+    const cleanedTeamB = teamBPlayers.map((p) => p.trim()).filter((p) => p.length > 0);
 
     if (cleanedTeamA.length < 2) {
-      setValidationError(`Team "${teamAName}" must have at least 2 players.`);
+      setValidationError(`Please add at least 2 players for "${teamAName}". You currently have ${cleanedTeamA.length}.`);
+      setActivePlayerTab('teamA');
       return;
     }
     if (cleanedTeamB.length < 2) {
-      setValidationError(`Team "${teamBName}" must have at least 2 players.`);
+      setValidationError(`Please add at least 2 players for "${teamBName}". You currently have ${cleanedTeamB.length}.`);
+      setActivePlayerTab('teamB');
       return;
     }
 
@@ -231,7 +228,7 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
       matchType,
       rules: {
         ...rules,
-        // Sync rules.playersPerTeam with squad size if customized
+        // Match rules squad count with user-provided roster size
         playersPerTeam: Math.max(finalTeamAPlayers.length, finalTeamBPlayers.length),
       },
       teamA: { name: teamAName, players: finalTeamAPlayers },
@@ -288,75 +285,98 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
             </div>
           )}
 
-          {/* Preset Selector */}
+          {/* Match Format Selector */}
           <div>
-            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2.5">
-              Select Match Format Preset
-            </label>
+            <div className="flex items-center justify-between mb-2">
+              <label htmlFor="match-format-select" className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                Select Match Format
+              </label>
+              <span className="text-[11px] font-mono text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                Active: {matchType === 'BOX_GULLY' ? 'Box / Gully' : matchType === 'T20' ? 'T20 Match' : matchType === 'ODI' ? 'One Day (ODI)' : matchType === 'TEST' ? 'Test Match (2 Innings)' : 'Custom Match'}
+              </span>
+            </div>
+
+            {/* Quick dropdown for all devices */}
+            <div className="mb-2.5">
+              <select
+                id="match-format-select"
+                value={matchType}
+                onChange={(e) => handleSelectPreset(e.target.value as MatchType)}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs sm:text-sm font-bold text-slate-800 focus:bg-white focus:outline-none focus:border-emerald-500 cursor-pointer shadow-xs"
+              >
+                <option value="BOX_GULLY">📦 Box / Gully Cricket (6 Overs • 4 Balls/Over • Last-Man Standing)</option>
+                <option value="T20">🏆 T20 Match (20 Overs • 6 Balls/Over • 11 Players)</option>
+                <option value="ODI">🌍 One Day / ODI (50 Overs • 6 Balls/Over • 11 Players)</option>
+                <option value="TEST">🔴 Test Match (Multi-Innings: 2 Innings Per Team)</option>
+                <option value="CUSTOM">⚡ Custom / Turf Rules (Custom Overs, Balls & Squad)</option>
+              </select>
+            </div>
+
+            {/* Visual preset cards */}
             <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
               <button
                 type="button"
                 onClick={() => handleSelectPreset('BOX_GULLY')}
-                className={`p-3 rounded-2xl border text-left transition-all ${
+                className={`p-3 rounded-2xl border text-left transition-all cursor-pointer ${
                   matchType === 'BOX_GULLY'
-                    ? 'bg-emerald-50 border-emerald-500 shadow-sm shadow-emerald-500/15'
+                    ? 'bg-emerald-50 border-emerald-500 shadow-sm shadow-emerald-500/15 ring-2 ring-emerald-500/20'
                     : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
                 }`}
               >
-                <div className="text-sm font-bold text-slate-900 mb-1">📦 Box Gully</div>
+                <div className="text-xs sm:text-sm font-bold text-slate-900 mb-0.5">📦 Box Gully</div>
                 <div className="text-[11px] text-emerald-700 font-mono font-semibold">6 Ov • 4 b/ov • LMS</div>
               </button>
 
               <button
                 type="button"
                 onClick={() => handleSelectPreset('CUSTOM')}
-                className={`p-3 rounded-2xl border text-left transition-all ${
+                className={`p-3 rounded-2xl border text-left transition-all cursor-pointer ${
                   matchType === 'CUSTOM'
-                    ? 'bg-emerald-50 border-emerald-500 shadow-sm shadow-emerald-500/15'
+                    ? 'bg-emerald-50 border-emerald-500 shadow-sm shadow-emerald-500/15 ring-2 ring-emerald-500/20'
                     : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
                 }`}
               >
-                <div className="text-sm font-bold text-slate-900 mb-1">⚡ Turf Box</div>
+                <div className="text-xs sm:text-sm font-bold text-slate-900 mb-0.5">⚡ Custom / Turf</div>
                 <div className="text-[11px] text-emerald-700 font-mono font-semibold">8 Ov • 6 b/ov • 8s</div>
               </button>
 
               <button
                 type="button"
                 onClick={() => handleSelectPreset('T20')}
-                className={`p-3 rounded-2xl border text-left transition-all ${
+                className={`p-3 rounded-2xl border text-left transition-all cursor-pointer ${
                   matchType === 'T20'
-                    ? 'bg-emerald-50 border-emerald-500 shadow-sm shadow-emerald-500/15'
+                    ? 'bg-emerald-50 border-emerald-500 shadow-sm shadow-emerald-500/15 ring-2 ring-emerald-500/20'
                     : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
                 }`}
               >
-                <div className="text-sm font-bold text-slate-900 mb-1">🏆 T20 Match</div>
+                <div className="text-xs sm:text-sm font-bold text-slate-900 mb-0.5">🏆 T20 Match</div>
                 <div className="text-[11px] text-emerald-700 font-mono font-semibold">20 Ov • 6 b/ov • 11s</div>
               </button>
 
               <button
                 type="button"
                 onClick={() => handleSelectPreset('ODI')}
-                className={`p-3 rounded-2xl border text-left transition-all ${
+                className={`p-3 rounded-2xl border text-left transition-all cursor-pointer ${
                   matchType === 'ODI'
-                    ? 'bg-emerald-50 border-emerald-500 shadow-sm shadow-emerald-500/15'
+                    ? 'bg-emerald-50 border-emerald-500 shadow-sm shadow-emerald-500/15 ring-2 ring-emerald-500/20'
                     : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
                 }`}
               >
-                <div className="text-sm font-bold text-slate-900 mb-1">🌍 One Day</div>
+                <div className="text-xs sm:text-sm font-bold text-slate-900 mb-0.5">🌍 One Day</div>
                 <div className="text-[11px] text-emerald-700 font-mono font-semibold">50 Ov • 6 b/ov • 11s</div>
               </button>
 
               <button
                 type="button"
                 onClick={() => handleSelectPreset('TEST')}
-                className={`p-3 rounded-2xl border text-left transition-all ${
+                className={`p-3 rounded-2xl border text-left transition-all cursor-pointer ${
                   matchType === 'TEST'
-                    ? 'bg-emerald-50 border-emerald-500 shadow-sm shadow-emerald-500/15'
+                    ? 'bg-emerald-50 border-emerald-500 shadow-sm shadow-emerald-500/15 ring-2 ring-emerald-500/20'
                     : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
                 }`}
               >
-                <div className="text-sm font-bold text-slate-900 mb-1">🔴 Test Match</div>
-                <div className="text-[11px] text-emerald-700 font-mono font-semibold">2 Inn • Open Ov • 11s</div>
+                <div className="text-xs sm:text-sm font-bold text-slate-900 mb-0.5">🔴 Test Match</div>
+                <div className="text-[11px] text-emerald-700 font-mono font-semibold">2 Innings • 11s</div>
               </button>
             </div>
           </div>
@@ -393,7 +413,7 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-slate-500 font-semibold mb-1">Players / Team</label>
+                <label className="block text-slate-500 font-semibold mb-1">Target Players / Team</label>
                 <input
                   type="number"
                   min="2"
@@ -450,6 +470,7 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
                 type="text"
                 required
                 value={teamAName}
+                placeholder="e.g. Royal Strikers"
                 onChange={(e) => setTeamAName(e.target.value)}
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 font-bold focus:bg-white focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
               />
@@ -463,6 +484,7 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
                 type="text"
                 required
                 value={teamBName}
+                placeholder="e.g. Turf Warriors"
                 onChange={(e) => setTeamBName(e.target.value)}
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 font-bold focus:bg-white focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
               />
@@ -483,11 +505,11 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
               <div className="flex items-center space-x-2">
                 <Users className="w-4 h-4 text-emerald-600" />
                 <span className="text-xs font-bold text-slate-800">
-                  Player Names & Rosters
+                  Player Names (Must Add Players)
                 </span>
               </div>
               <span className="text-[11px] text-slate-500 font-medium">
-                {activePlayerTab === 'teamA' ? teamAPlayers.length : teamBPlayers.length} players listed
+                {activePlayerTab === 'teamA' ? teamAPlayers.length : teamBPlayers.length} added
               </span>
             </div>
 
@@ -495,29 +517,39 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
             <div className="grid grid-cols-2 gap-2 mb-3">
               <button
                 type="button"
-                onClick={() => setActivePlayerTab('teamA')}
-                className={`p-2.5 rounded-xl border text-xs font-bold transition-all flex items-center justify-center space-x-2 ${
+                onClick={() => {
+                  setActivePlayerTab('teamA');
+                  setValidationError(null);
+                }}
+                className={`p-2.5 rounded-xl border text-xs font-bold transition-all flex items-center justify-center space-x-2 cursor-pointer ${
                   activePlayerTab === 'teamA'
                     ? 'bg-white text-emerald-700 border-emerald-300 shadow-xs'
                     : 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200/70'
                 }`}
               >
-                <span className="truncate">🏏 {teamAName}</span>
-                <span className="px-1.5 py-0.5 rounded-full bg-slate-200 text-[10px] text-slate-700 font-bold">
+                <span className="truncate">🏏 {teamAName || 'Team A'}</span>
+                <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
+                  teamAPlayers.length >= 2 ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-700'
+                }`}>
                   {teamAPlayers.length}
                 </span>
               </button>
               <button
                 type="button"
-                onClick={() => setActivePlayerTab('teamB')}
-                className={`p-2.5 rounded-xl border text-xs font-bold transition-all flex items-center justify-center space-x-2 ${
+                onClick={() => {
+                  setActivePlayerTab('teamB');
+                  setValidationError(null);
+                }}
+                className={`p-2.5 rounded-xl border text-xs font-bold transition-all flex items-center justify-center space-x-2 cursor-pointer ${
                   activePlayerTab === 'teamB'
                     ? 'bg-white text-emerald-700 border-emerald-300 shadow-xs'
                     : 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200/70'
                 }`}
               >
-                <span className="truncate">⚾ {teamBName}</span>
-                <span className="px-1.5 py-0.5 rounded-full bg-slate-200 text-[10px] text-slate-700 font-bold">
+                <span className="truncate">⚾ {teamBName || 'Team B'}</span>
+                <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
+                  teamBPlayers.length >= 2 ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-700'
+                }`}>
                   {teamBPlayers.length}
                 </span>
               </button>
@@ -526,28 +558,30 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
             {/* Toolbar: Information & Fast Actions */}
             <div className="flex flex-wrap items-center justify-between gap-2 mb-3 pb-2.5 border-b border-slate-200">
               <div className="text-[11px] text-slate-500">
-                Opening batters: <span className="text-emerald-700 font-bold">#1 (Striker)</span> &{' '}
-                <span className="text-teal-700 font-bold">#2 (Non-Striker)</span>
+                Batting Order: <span className="text-emerald-700 font-bold">#1 Striker (Bat 1st)</span> &{' '}
+                <span className="text-teal-700 font-bold">#2 Non-Striker</span>. <span className="text-slate-400">Use ▲▼ to reorder.</span>
               </div>
               <div className="flex items-center space-x-2">
                 <button
                   type="button"
                   onClick={() => setBulkPasteOpen(!bulkPasteOpen)}
-                  className="flex items-center space-x-1 px-2.5 py-1 text-[11px] font-semibold text-slate-700 hover:text-slate-900 bg-white hover:bg-slate-100 border border-slate-200 rounded-lg transition-colors shadow-xs"
-                  title="Paste a comma or newline separated list of names"
+                  className="flex items-center space-x-1 px-2.5 py-1 text-[11px] font-semibold text-slate-700 hover:text-slate-900 bg-white hover:bg-slate-100 border border-slate-200 rounded-lg transition-colors shadow-xs cursor-pointer"
+                  title="Paste a comma or newline separated list of player names"
                 >
                   <ClipboardPaste className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Paste List</span>
+                  <span>Paste Names</span>
                 </button>
-                <button
-                  type="button"
-                  onClick={() => handleResetToDefaults(activePlayerTab)}
-                  className="flex items-center space-x-1 px-2.5 py-1 text-[11px] font-semibold text-slate-500 hover:text-slate-800 bg-white hover:bg-slate-100 border border-slate-200 rounded-lg transition-colors shadow-xs"
-                  title="Reset team players to defaults"
-                >
-                  <RotateCcw className="w-3 h-3" />
-                  <span>Defaults</span>
-                </button>
+                {(activePlayerTab === 'teamA' ? teamAPlayers : teamBPlayers).length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => handleClearPlayers(activePlayerTab)}
+                    className="flex items-center space-x-1 px-2.5 py-1 text-[11px] font-semibold text-rose-600 hover:text-rose-700 bg-white hover:bg-rose-50 border border-slate-200 rounded-lg transition-colors shadow-xs cursor-pointer"
+                    title="Clear all players in this squad"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                    <span>Clear All</span>
+                  </button>
+                )}
               </div>
             </div>
 
@@ -561,7 +595,7 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
                   <button
                     type="button"
                     onClick={() => setBulkPasteOpen(false)}
-                    className="text-slate-400 hover:text-slate-700 text-xs"
+                    className="text-slate-400 hover:text-slate-700 text-xs cursor-pointer"
                   >
                     Cancel
                   </button>
@@ -571,13 +605,13 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
                   placeholder="Paste comma-separated or line-separated names, e.g.:&#10;Liam, Noah, Oliver, James, Elijah, William"
                   value={bulkPasteInput}
                   onChange={(e) => setBulkPasteInput(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 font-medium"
                 />
                 <div className="flex justify-end">
                   <button
                     type="button"
                     onClick={() => handleBulkApply(activePlayerTab)}
-                    className="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold shadow-xs"
+                    className="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-xs cursor-pointer"
                   >
                     Apply Names
                   </button>
@@ -585,52 +619,12 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
               </div>
             )}
 
-            {/* Player Input Rows */}
-            <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
-              {(activePlayerTab === 'teamA' ? teamAPlayers : teamBPlayers).map((player, idx) => (
-                <div
-                  key={`${activePlayerTab}_${idx}`}
-                  className="flex items-center space-x-2 bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 focus-within:border-emerald-500 shadow-xs transition-colors"
-                >
-                  <span className="w-6 text-center text-xs font-mono font-bold text-slate-400">
-                    #{idx + 1}
-                  </span>
-                  <input
-                    type="text"
-                    value={player}
-                    onChange={(e) => handleUpdatePlayer(activePlayerTab, idx, e.target.value)}
-                    placeholder={`Player ${idx + 1} Name`}
-                    className="flex-1 bg-transparent text-xs text-slate-900 font-semibold focus:outline-none"
-                  />
-                  {idx === 0 && (
-                    <span className="text-[10px] bg-emerald-50 text-emerald-700 font-bold px-1.5 py-0.5 rounded border border-emerald-200 whitespace-nowrap">
-                      Striker
-                    </span>
-                  )}
-                  {idx === 1 && (
-                    <span className="text-[10px] bg-teal-50 text-teal-700 font-bold px-1.5 py-0.5 rounded border border-teal-200 whitespace-nowrap">
-                      Non-Striker
-                    </span>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => handleRemovePlayer(activePlayerTab, idx)}
-                    disabled={(activePlayerTab === 'teamA' ? teamAPlayers : teamBPlayers).length <= 2}
-                    className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors disabled:opacity-30 disabled:hover:text-slate-400 disabled:hover:bg-transparent"
-                    title="Remove player"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              ))}
-            </div>
-
-            {/* Add Player Input Row */}
-            <div className="mt-3 pt-3 border-t border-slate-200 flex items-center space-x-2">
+            {/* Add Player Input Row (At the top so it's immediately accessible) */}
+            <div className="mb-3 flex items-center space-x-2">
               <div className="relative flex-1">
                 <input
                   type="text"
-                  placeholder={`Add new player to ${activePlayerTab === 'teamA' ? teamAName : teamBName}...`}
+                  placeholder={`Enter player name for ${activePlayerTab === 'teamA' ? (teamAName || 'Team A') : (teamBName || 'Team B')} and press Enter...`}
                   value={newPlayerName}
                   onChange={(e) => setNewPlayerName(e.target.value)}
                   onKeyDown={(e) => {
@@ -639,17 +633,94 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
                       handleAddPlayer(activePlayerTab);
                     }
                   }}
-                  className="w-full bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                  className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 shadow-xs font-semibold"
                 />
               </div>
               <button
                 type="button"
                 onClick={() => handleAddPlayer(activePlayerTab)}
-                className="flex items-center space-x-1.5 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white rounded-xl text-xs font-bold transition-all shadow-sm shadow-emerald-600/20"
+                className="flex items-center space-x-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white rounded-xl text-xs font-bold transition-all shadow-sm shadow-emerald-600/20 cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" />
-                <span>Add Player</span>
+                <span>Add</span>
               </button>
+            </div>
+
+            {/* Player List Display */}
+            <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+              {(activePlayerTab === 'teamA' ? teamAPlayers : teamBPlayers).length === 0 ? (
+                <div className="text-center py-6 px-4 bg-white border border-dashed border-slate-200 rounded-2xl text-xs text-slate-500">
+                  <Users className="w-6 h-6 text-slate-300 mx-auto mb-1.5" />
+                  <p className="font-semibold text-slate-700">No players added for {activePlayerTab === 'teamA' ? (teamAName || 'Team A') : (teamBName || 'Team B')} yet</p>
+                  <p className="text-[11px] text-slate-400 mt-0.5">Type a player name in the box above and press Enter, or use "Paste Names".</p>
+                </div>
+              ) : (
+                (activePlayerTab === 'teamA' ? teamAPlayers : teamBPlayers).map((player, idx) => {
+                  const currentTeamList = activePlayerTab === 'teamA' ? teamAPlayers : teamBPlayers;
+                  return (
+                    <div
+                      key={`${activePlayerTab}_${idx}`}
+                      className="flex items-center space-x-2 bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 focus-within:border-emerald-500 shadow-xs transition-colors"
+                    >
+                      {/* Move Up / Down Reorder Controls */}
+                      <div className="flex flex-col items-center justify-center -my-0.5">
+                        <button
+                          type="button"
+                          disabled={idx === 0}
+                          onClick={() => handleMovePlayer(activePlayerTab, idx, idx - 1)}
+                          className="p-0.5 text-slate-400 hover:text-emerald-700 disabled:opacity-20 disabled:hover:text-slate-400 cursor-pointer disabled:cursor-not-allowed transition-colors"
+                          title="Move Up (Bat earlier)"
+                        >
+                          <ChevronUp className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          disabled={idx === currentTeamList.length - 1}
+                          onClick={() => handleMovePlayer(activePlayerTab, idx, idx + 1)}
+                          className="p-0.5 text-slate-400 hover:text-emerald-700 disabled:opacity-20 disabled:hover:text-slate-400 cursor-pointer disabled:cursor-not-allowed transition-colors"
+                          title="Move Down (Bat later)"
+                        >
+                          <ChevronDown className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+
+                      <span className="w-5 text-center text-xs font-mono font-bold text-slate-400">
+                        #{idx + 1}
+                      </span>
+                      <input
+                        type="text"
+                        value={player}
+                        onChange={(e) => handleUpdatePlayer(activePlayerTab, idx, e.target.value)}
+                        placeholder={`Player ${idx + 1} Name`}
+                        className="flex-1 bg-transparent text-xs text-slate-900 font-semibold focus:outline-none"
+                      />
+                      {idx === 0 && (
+                        <span className="text-[10px] bg-emerald-50 text-emerald-700 font-bold px-1.5 py-0.5 rounded border border-emerald-200 whitespace-nowrap">
+                          #1 Striker (Bat 1st)
+                        </span>
+                      )}
+                      {idx === 1 && (
+                        <span className="text-[10px] bg-teal-50 text-teal-700 font-bold px-1.5 py-0.5 rounded border border-teal-200 whitespace-nowrap">
+                          #2 Non-Striker
+                        </span>
+                      )}
+                      {idx === 2 && (
+                        <span className="text-[10px] bg-slate-100 text-slate-600 font-semibold px-1.5 py-0.5 rounded border border-slate-200 whitespace-nowrap">
+                          #3 In
+                        </span>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => handleRemovePlayer(activePlayerTab, idx)}
+                        className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                        title="Remove player"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  );
+                })
+              )}
             </div>
           </div>
 

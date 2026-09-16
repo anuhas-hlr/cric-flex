@@ -103,6 +103,7 @@ export interface InningsState {
   };
   fallOfWickets: FallOfWicket[];
   isCompleted: boolean;
+  battingOrder?: string[];
 }
 
 export interface TeamInfo {

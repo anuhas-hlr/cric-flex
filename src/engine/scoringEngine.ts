@@ -124,6 +124,7 @@ export function createInitialInnings(
     },
     fallOfWickets: [],
     isCompleted: false,
+    battingOrder: [strikerName, nonStrikerName].filter(Boolean),
   };
 }
 
@@ -285,14 +286,31 @@ export function processBall(
       runsCompleted,
     };
 
-    // If a new batter is designated, slot them in
+    // If a new batter is designated, slot them in and record in batting order
     if (params.newBatterName) {
       if (playerOut === current.strikerName) {
         current.strikerName = params.newBatterName;
       } else {
         current.nonStrikerName = params.newBatterName;
       }
+      if (!current.battingOrder) {
+        current.battingOrder = [];
+      }
+      if (!current.battingOrder.includes(params.newBatterName)) {
+        current.battingOrder.push(params.newBatterName);
+      }
     }
+  }
+
+  // Ensure current active batters are in batting order
+  if (!current.battingOrder) {
+    current.battingOrder = [];
+  }
+  if (current.strikerName && !current.battingOrder.includes(current.strikerName)) {
+    current.battingOrder.push(current.strikerName);
+  }
+  if (current.nonStrikerName && !current.battingOrder.includes(current.nonStrikerName)) {
+    current.battingOrder.push(current.nonStrikerName);
   }
 
   // Create BallEvent record
@@ -544,3 +562,63 @@ export function evaluateMatchResult(match: MatchRecord): { winner: string; resul
 
   return { winner: '', resultText: '2nd Innings in Progress', isCompleted: false };
 }
+
+/**
+ * Return batting player names in the exact chronological order they came in to bat.
+ * - Batters who opened and entered the pitch first come on top (#1, #2, #3, ...)
+ * - Batters who actually batted (faced balls, scored runs, or were dismissed) are sorted by entrance order
+ * - Players who "Did Not Bat" (DNB) are placed at the very end
+ */
+export function getBattingOrder(innings: InningsState): string[] {
+  const order: string[] = [];
+  const added = new Set<string>();
+
+  const add = (name?: string) => {
+    if (name && !added.has(name) && innings.batters[name]) {
+      order.push(name);
+      added.add(name);
+    }
+  };
+
+  // 1. If explicit battingOrder exists, respect its initial chronological entries
+  if (innings.battingOrder && innings.battingOrder.length > 0) {
+    innings.battingOrder.forEach(add);
+  }
+
+  // 2. Trace all balls chronologically from start of innings
+  if (innings.allBalls && innings.allBalls.length > 0) {
+    for (const b of innings.allBalls) {
+      add(b.striker);
+      add(b.nonStriker);
+      if (b.wicket?.playerOut) {
+        add(b.wicket.playerOut);
+      }
+    }
+  }
+
+  // 3. Fall of wickets records
+  if (innings.fallOfWickets && innings.fallOfWickets.length > 0) {
+    for (const fow of innings.fallOfWickets) {
+      add(fow.playerOut);
+    }
+  }
+
+  // 4. Current active batters
+  add(innings.strikerName);
+  add(innings.nonStrikerName);
+
+  // 5. Any batter with balls faced, runs scored, or marked out
+  Object.values(innings.batters).forEach((b) => {
+    if (b.balls > 0 || b.runs > 0 || b.isOut) {
+      add(b.name);
+    }
+  });
+
+  // 6. Remaining squad players who "Did Not Bat" (DNB) are placed at the end
+  Object.keys(innings.batters).forEach((name) => {
+    add(name);
+  });
+
+  return order;
+}
+
